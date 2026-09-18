@@ -1,0 +1,248 @@
+01. VPC Endpoints:
+Suppose your private EC2 needs to access S3.
+One approach:
+
+EC2
+ |
+ v
+NAT Gateway
+ |
+ v
+Internet Gateway
+ |
+ v
+S3
+
+But AWS provides VPC endpoints so certain AWS services can be reached privately without traversing the public Internet.
+
+Conceptually:
+
+Private EC2
+     |
+     v
+VPC Endpoint
+     |
+     v
+AWS Service
+
+Examples include:
+
+S3
+DynamoDB
+ECR
+CloudWatch
+SSM
+Secrets Manager
+
+The exact endpoint type and networking requirements depend on the service.
+
+
+
+02. Gateway vs Interface Endpoint:
+Two important types:
+
+Gateway endpoint
+
+Commonly used for:
+
+S3
+DynamoDB
+Interface endpoint
+
+Uses:
+
+PrivateLink
+
+and creates network interfaces in your subnet.
+
+Common examples include private access to services such as:
+
+ECR APIs
+CloudWatch
+SSM
+Secrets Manager
+
+
+
+03. VPC Endpoints vs Gateway Endpoint vs Interface Endpoint
+
+Think of VPC Endpoints as a way for resources inside your VPC to access AWS services without sending traffic through the public internet, NAT Gateway, or Internet Gateway.
+
+1. Big Picture
+Without VPC Endpoint
+
+EC2 in Private Subnet
+        |
+        v
+   NAT Gateway
+        |
+        v
+   Internet Gateway
+        |
+        v
+   AWS Service
+   (S3, etc.)
+
+
+With VPC Endpoint
+
+EC2 in Private Subnet
+        |
+        v
+   VPC Endpoint
+        |
+        v
+   AWS Service
+
+This is particularly useful for private-subnet workloads.
+
+2. What is a VPC Endpoint?
+
+A VPC Endpoint provides private connectivity from your VPC to supported AWS services without requiring the traffic to traverse the public internet.
+
+There are two main types you should know for AWS DevOps:
+
+Feature	Gateway Endpoint	Interface Endpoint
+Implementation	Route-table entry	ENI
+Uses private IP	No ENI	Yes
+Uses PrivateLink	No	Yes
+Typical services	S3, DynamoDB	Many AWS services
+Security Group	❌ No	✅ Yes
+Route table	✅ Yes	Usually DNS-based
+Cost	No endpoint hourly charge	Hourly + data processing charges
+Subnet-specific	No	Yes
+Common DevOps use	S3 access	ECR, CloudWatch, Secrets Manager, SSM, etc.
+
+3. Gateway Endpoint
+
+A Gateway Endpoint is the simpler type.
+
+Currently, the important services to remember are:
+
+Amazon S3 and DynamoDB
+
+Example
+
+Suppose you have:
+
+VPC
+│
+├── Public Subnet
+│
+└── Private Subnet
+      │
+      └── EC2
+            |
+            | Need to download artifact
+            v
+           S3
+
+Normally, a private EC2 might need a NAT Gateway to reach S3.
+
+Instead:
+
+Private EC2
+     |
+     v
+Gateway Endpoint
+     |
+     v
+    S3
+
+No NAT Gateway is required for this S3 traffic.
+
+How Gateway Endpoint works
+
+The endpoint is associated with a route table.
+
+For example:
+
+Private Route Table
+
+Destination                 Target
+------------------------------------------------
+10.0.0.0/16                 local
+0.0.0.0/0                   NAT Gateway
+S3 Prefix List              vpce-xxxxxxxx
+
+The S3-specific route sends S3 traffic through the Gateway Endpoint.
+
+Important interview point
+
+Gateway Endpoint does NOT create an ENI inside your subnet.
+
+That's a major difference from an Interface Endpoint.
+
+4. Interface Endpoint
+
+An Interface Endpoint uses AWS PrivateLink.
+
+AWS creates one or more Elastic Network Interfaces (ENIs) inside your selected subnets.
+
+Example:
+
+VPC
+│
+├── Private Subnet AZ-1
+│     │
+│     ├── EC2
+│     │
+│     └── Interface Endpoint ENI
+│
+└── Private Subnet AZ-2
+      │
+      ├── EC2
+      │
+      └── Interface Endpoint ENI
+
+Your EC2 accesses the AWS service through those private IP addresses.
+
+5. Real-time DevOps Example — ECR
+
+Imagine you're running Docker workloads on EC2.
+
+Your EC2 is in a private subnet.
+
+It needs to pull a Docker image:
+
+EC2
+ |
+ | docker pull
+ v
+Amazon ECR
+
+If your environment doesn't have suitable private connectivity, you might need NAT-based internet access.
+
+With Interface Endpoints:
+
+             VPC
+              |
+      +-------+-------+
+      |               |
+   EC2 Private     Interface
+    Subnet          Endpoint
+                      |
+                      v
+                     ECR
+
+For private ECR access, you commonly need endpoints for:
+
+ecr.api
+ecr.dkr
+
+and typically an S3 Gateway Endpoint, because ECR image layers are stored in S3.
+
+So a private EC2/ECS/EKS environment might look like:
+
+                    VPC
+                     |
+        +------------+-------------+
+        |                          |
+    EC2 / EKS                  Endpoints
+        |                          |
+        |              +-----------+-----------+
+        |              |           |           |
+        +------------> ECR API    ECR DKR      S3
+                       Interface  Interface   Gateway
+
+This is a very common AWS DevOps interview scenario.
