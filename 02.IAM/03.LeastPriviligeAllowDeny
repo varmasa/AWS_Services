@@ -1,0 +1,81 @@
+1. Least Privilege:
+This is extremely important in DevOps.
+
+Least privilege means:
+
+Give only the permissions required to perform the task.
+
+Suppose your application only needs:
+
+S3 → Read objects
+
+Don't give:
+
+AdministratorAccess
+
+Instead give something close to:
+
+s3:GetObject
+
+for only the required bucket/path.
+
+Bad
+Application
+   ↓
+AdministratorAccess
+Better
+Application
+   ↓
+Specific IAM Role
+   ↓
+s3:GetObject
+   ↓
+Specific bucket
+
+
+
+2. Allow vs Deny:
+IAM policies contain an effect.
+
+Usually:
+
+Allow
+Deny
+
+Example:
+
+{
+  "Effect": "Allow",
+  "Action": "s3:GetObject",
+  "Resource": "arn:aws:s3:::saishop-images/*"
+}
+
+Means:
+Allow reading objects.
+
+
+3. Explicit Deny:
+AWS IAM has an important rule:
+
+An explicit Deny overrides an Allow.
+
+Example:
+
+Policy 1:
+Allow s3:DeleteObject
+
+Policy 2:
+Deny s3:DeleteObject
+
+Effective result:
+
+DeleteObject
+     ↓
+     ❌ DENIED
+
+Even though there is an Allow.
+
+Remember:
+Explicit Deny
+     ↓
+Overrides Allow
