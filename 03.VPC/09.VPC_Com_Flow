@@ -1,0 +1,168 @@
+01. VPC components
+
+Memorize this:
+
+VPC
+ |
+ +-- CIDR
+ |
+ +-- Subnets
+ |     |
+ |     +-- Public
+ |     +-- Private
+ |
+ +-- Route Tables
+ |
+ +-- Internet Gateway
+ |
+ +-- NAT Gateway
+ |
+ +-- Security Groups
+ |
+ +-- Network ACLs
+ |
+ +-- VPC Endpoints
+ |
+ +-- DNS
+ |
+ +-- VPC Peering
+ |
+ +-- Transit Gateway
+
+
+02. Public subnet traffic:
+
+EC2
+ |
+ v
+Route Table
+ |
+ | 0.0.0.0/0
+ v
+Internet Gateway
+ |
+ v
+Internet
+
+
+
+03. Private subnet traffic:
+EC2
+ |
+ v
+Route Table
+ |
+ | 0.0.0.0/0
+ v
+NAT Gateway
+ |
+ v
+Internet Gateway
+ |
+ v
+Internet
+
+
+
+04. Private subnet to S3
+
+With an appropriate S3 VPC endpoint:
+
+Private EC2
+     |
+     v
+S3 VPC Endpoint
+     |
+     v
+S3
+
+This can avoid using a NAT Gateway for that S3 traffic.
+
+
+
+05. Security Group architecture
+
+A very common production pattern:
+
+                 Internet
+                    |
+                    v
+                 ALB-SG
+                    |
+                    v
+                 APP-SG
+                    |
+                    v
+                  DB-SG
+
+Rules:
+
+ALB-SG
+443  <-- Internet
+
+APP-SG
+8080 <-- ALB-SG
+
+DB-SG
+5432 <-- APP-SG
+
+This is much better than opening everything to:
+
+0.0.0.0/0
+
+
+
+
+Hands-on project:
+Don't just memorize VPC.
+
+Build this:
+
+                 Internet
+                    |
+                    v
+                 Route53
+                    |
+                    v
+                   ALB
+                /       \
+               /         \
+         Public AZ-1   Public AZ-2
+              |             |
+          NAT Gateway   NAT Gateway
+              |             |
+              v             v
+       Private App AZ-1  Private App AZ-2
+              |             |
+              +------+------+
+                     |
+                     v
+                    RDS
+
+Then deploy:
+
+Terraform
+    |
+    v
+VPC
+ |
+ +-- 2 Public Subnets
+ +-- 2 Private App Subnets
+ +-- 2 Private DB Subnets
+ +-- IGW
+ +-- NAT Gateways
+ +-- Route Tables
+ +-- Security Groups
+ +-- ALB
+ +-- EC2
+ +-- RDS
+
+Then later replace:
+
+EC2
+
+with:
+
+EKS
+
+and you'll start understanding real AWS DevOps networking rather than just memorizing definitions.
