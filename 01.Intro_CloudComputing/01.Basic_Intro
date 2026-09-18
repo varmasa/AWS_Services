@@ -1,0 +1,892 @@
+ Network: cables, routers and servers connected with each other
+ Router: A networking device that forwards data packets between computer networks. They know where to send your packets on the internet!
+ Switch: Takes a packet and send it to the correct ser ver / client on your network.
+
+
+Problems with traditional IT approach
+• Pay for the rent for the data center
+• Pay for power supply, cooling, maintenance
+• Adding and replacing hardware takes time
+• Scaling is limited
+• Hire 24/7 team to monitor the infrastructure
+• How to deal with disasters? (earthquake, power shutdown, fire…)
+• Can we externalize all this?
+
+Cloud Computing: Zero → Hero
+
+Let's imagine we are building a real application:
+
+Example: An e-commerce website like Amazon/Flipkart
+Users open the website → browse products → login → place orders → payment → receive notifications.
+
+We'll use this same example to understand almost every cloud concept.
+
+1. What is Cloud Computing?
+Traditional way — Before Cloud
+
+Suppose you start an e-commerce company.
+
+You need:
+
+Physical servers
+Hard disks/SSD
+RAM
+Networking equipment
+Load balancers
+Firewalls
+Data center
+Electricity
+Cooling
+Backup systems
+System administrators
+
+You purchase everything yourself.
+
+             Your Company
+                  |
+          ┌───────┴────────┐
+          |   Data Center  |
+          |                |
+       Server 1         Server 2
+          |                |
+       Database         Application
+
+If 100 users use your application, maybe 1 server is enough.
+
+But suppose suddenly 1 lakh users visit because of a sale.
+
+You need more servers.
+
+Buying physical servers takes time and money.
+
+2. Cloud Computing
+
+Instead of buying physical infrastructure, you rent computing resources from a cloud provider.
+
+For example:
+
+Amazon Web Services
+Microsoft Azure
+Google Cloud
+
+With AWS:
+
+             Internet
+                 |
+                 ↓
+              AWS Cloud
+                 |
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+     EC2        S3        RDS
+   Servers    Storage    Database
+
+You don't physically own those servers.
+
+You use them when required and pay according to the service/usage model.
+
+That's the fundamental idea of cloud computing.
+
+3. Simple Real-Life Example
+
+Think about electricity.
+
+Without electricity grid
+
+You would need:
+
+Buy Generator
+      ↓
+Buy Fuel
+      ↓
+Maintain Generator
+      ↓
+Repair Generator
+      ↓
+Generate Electricity
+With electricity provider
+
+You simply:
+
+Electricity Provider
+        ↓
+      Power
+        ↓
+      You
+        ↓
+   Pay for usage
+
+Cloud works similarly.
+
+Instead of:
+
+"I need to buy 10 servers."
+
+You say:
+
+"I need 10 virtual servers."
+
+The cloud provider provides them.
+
+4. What exactly does "Cloud" contain?
+
+Cloud isn't one thing.
+
+It contains many types of resources.
+
+For AWS, you'll eventually learn:
+
+AWS
+│
+├── Compute
+│   └── EC2
+│
+├── Networking
+│   ├── VPC
+│   ├── Subnets
+│   ├── Route Tables
+│   ├── Internet Gateway
+│   └── Load Balancer
+│
+├── Storage
+│   ├── S3
+│   └── EBS
+│
+├── Database
+│   ├── RDS
+│   └── DynamoDB
+│
+├── Security
+│   ├── IAM
+│   └── Security Groups
+│
+├── DNS
+│   └── Route 53
+│
+├── Monitoring
+│   └── CloudWatch
+│
+└── Messaging
+    ├── SNS
+    └── SQS
+
+Don't try to memorize everything initially.
+
+Understand why each service exists.
+
+5. What is a Server?
+
+Before understanding EC2, understand a server.
+
+Suppose your application is written in Java:
+
+Java Application
+       ↓
+      JVM
+       ↓
+ Operating System
+       ↓
+    Hardware
+
+The hardware might have:
+
+CPU
+RAM
+Storage
+Network
+
+A server is essentially a computer that provides services to other computers/users.
+
+6. What is a Virtual Machine?
+
+Suppose you have one physical server:
+
+Physical Server
+CPU: 16 cores
+RAM: 64 GB
+
+You can divide it into multiple virtual machines:
+
+Physical Server
+│
+├── VM1 → 4 CPU / 16 GB RAM
+├── VM2 → 4 CPU / 16 GB RAM
+├── VM3 → 4 CPU / 16 GB RAM
+└── VM4 → 4 CPU / 16 GB RAM
+
+Each VM behaves approximately like an independent computer.
+
+Cloud providers use virtualization heavily to provide computing resources.
+
+7. AWS EC2
+
+EC2 = Elastic Compute Cloud
+
+Think:
+
+EC2 = Virtual Server in AWS
+
+For example, your e-commerce application needs a Linux server.
+
+You create:
+
+EC2 Instance
+│
+├── Ubuntu/Amazon Linux
+├── CPU
+├── RAM
+├── Disk
+└── Network
+
+Then deploy your application.
+
+User
+ ↓
+Internet
+ ↓
+EC2
+ ↓
+Your Application
+
+This is one of the most important concepts for a DevOps engineer.
+
+8. What is Storage?
+
+Your application needs to store files.
+
+For example:
+
+profile.jpg
+product1.jpg
+product2.jpg
+invoice.pdf
+backup.zip
+
+You don't necessarily want these files sitting on your application server.
+
+AWS provides S3.
+
+S3 = Simple Storage Service
+
+Think of S3 as massive cloud object storage.
+
+                 S3
+                  |
+       ┌──────────┼──────────┐
+       ↓          ↓          ↓
+   image.jpg   invoice.pdf  backup.zip
+
+Real example:
+
+A user uploads a profile picture:
+
+User
+ ↓
+Website
+ ↓
+Application
+ ↓
+S3
+ ↓
+profile.jpg
+9. What is a Database?
+
+Your application needs to store structured information:
+
+Users
+Products
+Orders
+Payments
+Addresses
+
+Example:
+
+Users Table
+
+ID     Name       Email
+1      Rahul      rahul@gmail.com
+2      Priya      priya@gmail.com
+
+AWS provides managed database services such as RDS.
+
+Instead of manually installing and maintaining a database server, you can use an AWS-managed database service.
+
+Application
+     |
+     ↓
+    RDS
+     |
+ ┌───┴────┐
+ |        |
+Users    Orders
+10. EC2 vs S3 vs RDS
+
+This is extremely important.
+
+Service	Purpose	Example
+EC2	Compute/server	Run application
+S3	Object storage	Store images/videos/files
+RDS	Relational database	Store users/orders
+
+Think:
+
+EC2 = Computer
+S3  = File storage
+RDS = Database
+11. What happens when 1 server isn't enough?
+
+Suppose:
+
+100 users
+ ↓
+EC2
+
+Works perfectly.
+
+Then your company becomes popular:
+
+100,000 users
+       ↓
+      ???
+
+One server may not handle the traffic.
+
+So you add multiple servers.
+
+              Users
+                |
+        ┌───────┴───────┐
+        ↓               ↓
+      EC2-1           EC2-2
+
+Now you have another problem.
+
+Which server should receive each request?
+
+That's where a Load Balancer comes in.
+
+12. Load Balancer
+                Users
+                  |
+                  ↓
+           Load Balancer
+             /        \
+            /          \
+           ↓            ↓
+        EC2-1         EC2-2
+
+The load balancer distributes traffic among servers.
+
+For example:
+
+Request 1 → EC2-1
+Request 2 → EC2-2
+Request 3 → EC2-1
+Request 4 → EC2-2
+
+In AWS, you'll commonly encounter Elastic Load Balancing, including Application Load Balancer (ALB).
+
+13. What if traffic suddenly increases?
+
+Suppose your e-commerce company announces:
+
+Big Billion Day / Festival Sale
+
+Normal traffic:
+
+10,000 users
+
+During sale:
+
+1,000,000 users
+
+You don't want to manually create 50 servers.
+
+This is where Auto Scaling becomes important.
+
+Normal traffic
+
+        Load Balancer
+             |
+        ┌────┴────┐
+       EC2       EC2
+
+Traffic increases:
+
+             Load Balancer
+                  |
+       ┌──────────┼──────────┐
+      EC2        EC2        EC2
+                              ↓
+                            EC2
+
+Traffic decreases:
+
+             Load Balancer
+                  |
+             ┌────┴────┐
+            EC2       EC2
+
+AWS can automatically adjust capacity according to configured scaling policies.
+
+14. What is Networking?
+
+Now imagine your application has:
+
+Internet
+   ↓
+Load Balancer
+   ↓
+Application Servers
+   ↓
+Database
+
+You don't want your database directly accessible from the public internet.
+
+You need a network architecture.
+
+That's where VPC comes in.
+
+15. VPC
+VPC = Virtual Private Cloud
+
+Think of it as:
+
+Your private network inside AWS.
+
+Example:
+
+                 Internet
+                    |
+                    ↓
+             Internet Gateway
+                    |
+              ┌─────┴─────┐
+              │    VPC    │
+              │           │
+              │ Public    │
+              │ Subnet    │
+              │    ↓      │
+              │   ALB     │
+              │    ↓      │
+              │ Private   │
+              │ Subnet    │
+              │   EC2     │
+              │    ↓      │
+              │ RDS       │
+              └───────────┘
+
+This is where your AWS networking journey really starts.
+
+16. Public vs Private Subnet
+Public subnet
+
+Resources can have a route toward the internet through the VPC's internet gateway.
+
+Example:
+
+Internet
+   ↓
+Internet Gateway
+   ↓
+Public Subnet
+   ↓
+Load Balancer
+Private subnet
+
+Used for resources that shouldn't be directly reachable from the public internet.
+
+Example:
+
+Application
+     ↓
+Private Subnet
+     ↓
+Database
+
+A common architecture is:
+
+Internet
+   ↓
+ALB
+   ↓
+EC2
+   ↓
+RDS
+
+with the application and database placed according to security/networking requirements, often using private subnets for backend/database tiers.
+
+17. DNS — Route 53
+
+Users don't want to type:
+
+13.234.56.78
+
+They want:
+
+www.myshop.com
+
+DNS translates a domain name into the appropriate destination.
+
+www.myshop.com
+       ↓
+      DNS
+       ↓
+Load Balancer
+       ↓
+EC2
+
+AWS's DNS service is Route 53.
+
+18. Security — IAM
+
+Now ask:
+
+Who is allowed to create EC2?
+
+Who can delete S3 buckets?
+
+Who can access RDS?
+
+AWS uses IAM — Identity and Access Management.
+
+For example:
+
+Developer
+   ↓
+IAM Role
+   ↓
+Allowed:
+  EC2 ✓
+  S3 ✓
+
+Not allowed:
+  IAM administration ✗
+
+A major cloud security principle is:
+
+Give only the permissions required to perform the job.
+
+This is called least privilege.
+
+19. Monitoring
+
+Your application is running.
+
+But how do you know:
+
+Is CPU high?
+Is the server down?
+Are requests failing?
+Is disk usage increasing?
+Is the application healthy?
+
+You need monitoring.
+
+AWS provides CloudWatch.
+
+EC2
+ |
+ ├── CPU metrics
+ ├── Network metrics
+ ├── Logs
+ └── Alarms
+          ↓
+      CloudWatch
+
+Example:
+
+CPU > 80%
+    ↓
+CloudWatch Alarm
+    ↓
+Notification / scaling action
+20. Notifications
+
+Suppose your database has a problem.
+
+You want:
+
+CloudWatch
+    ↓
+Alarm
+    ↓
+SNS
+    ↓
+Email / notification
+
+SNS = Simple Notification Service
+
+So you'll see how AWS services start connecting together.
+
+21. Now Build the Complete Architecture
+
+Let's combine everything.
+
+Imagine our e-commerce application:
+
+                         USERS
+                           |
+                           ↓
+                      Route 53
+                           |
+                           ↓
+                       Internet
+                           |
+                           ↓
+                ┌──────────────────┐
+                │   Load Balancer  │
+                │       ALB        │
+                └────────┬─────────┘
+                         |
+             ┌───────────┴───────────┐
+             ↓                       ↓
+          EC2-1                   EC2-2
+             |                       |
+             └───────────┬───────────┘
+                         |
+                         ↓
+                    Application
+                         |
+             ┌───────────┴───────────┐
+             ↓                       ↓
+            S3                      RDS
+        Product images          Users/Orders
+
+And:
+
+EC2 / RDS / ALB
+      ↓
+     VPC
+      ↓
+Security Groups + IAM
+      ↓
+CloudWatch
+      ↓
+SNS
+
+Now you're starting to think like a cloud engineer.
+
+22. What does "Elastic" mean?
+
+You'll hear this word everywhere in AWS.
+
+Elasticity means the ability to increase or decrease resources according to demand.
+
+Example:
+
+Normal:
+2 EC2 instances
+
+High traffic:
+10 EC2 instances
+
+Traffic decreases:
+2 EC2 instances
+
+That's elasticity.
+
+23. Scalability
+
+Scalability means the system can handle increasing workload by increasing capacity.
+
+Two basic approaches:
+
+Vertical scaling
+
+Make one server bigger:
+
+4 CPU / 8 GB RAM
+        ↓
+8 CPU / 16 GB RAM
+Horizontal scaling
+
+Add more servers:
+
+EC2
+ ↓
+EC2 + EC2
+ ↓
+EC2 + EC2 + EC2 + EC2
+
+Cloud architectures commonly make heavy use of horizontal scaling.
+
+24. High Availability
+
+What if EC2-1 crashes?
+
+Bad architecture:
+
+Users
+  ↓
+EC2-1 ❌
+
+Better:
+
+             Load Balancer
+              /         \
+             ↓           ↓
+          EC2-1        EC2-2
+             ❌           ✓
+
+Users can continue being served by healthy capacity.
+
+For higher resilience, AWS resources can also be distributed across Availability Zones.
+
+25. Region
+
+AWS has geographical locations called Regions.
+
+For example:
+
+AWS Region
+     |
+     ├── Availability Zone A
+     ├── Availability Zone B
+     └── Availability Zone C
+
+A Region is a geographical area containing multiple Availability Zones.
+
+For an Indian deployment, you might encounter the Asia Pacific (Mumbai) Region.
+
+26. Availability Zone
+
+An Availability Zone (AZ) is an isolated location within an AWS Region.
+
+For example:
+
+Mumbai Region
+│
+├── AZ-1
+│    ├── EC2
+│    └── RDS
+│
+├── AZ-2
+│    ├── EC2
+│    └── RDS
+│
+└── AZ-3
+     └── ...
+
+Why multiple AZs?
+
+Because if one AZ has an outage, your architecture can potentially continue operating using another AZ.
+
+27. Cloud Service Models
+
+This is an important interview topic.
+
+IaaS
+
+Infrastructure as a Service
+
+You manage more of the infrastructure.
+
+Example:
+
+EC2
+
+You generally manage:
+
+Application
+Runtime
+OS
+Configuration
+
+AWS manages the underlying physical infrastructure.
+
+PaaS
+
+Platform as a Service
+
+The cloud provider manages more of the platform.
+
+Conceptually:
+
+You
+ ↓
+Application
+ ↓
+Platform
+ ↓
+Infrastructure
+
+You focus more on your application rather than managing servers.
+
+SaaS
+
+Software as a Service
+
+You simply use the software.
+
+Examples include cloud-hosted applications such as:
+
+Gmail
+Microsoft 365
+Salesforce
+
+You aren't managing the underlying servers.
+
+28. The Responsibility Model
+
+One of the biggest cloud concepts:
+
+AWS manages some things; you manage other things.
+
+For example:
+
+              AWS
+               |
+       Physical Hardware
+       Data Centers
+       Networking
+       Infrastructure
+               |
+        ----------------
+               |
+             YOU
+               |
+       Application
+       Configuration
+       Data
+       IAM permissions
+       OS (for many IaaS services)
+
+The exact division depends on the AWS service.
+
+This is called the Shared Responsibility Model.
+
+
+29. Why companies use Cloud
+
+Suppose you're launching a startup.
+
+Traditional:
+
+Buy servers
+Buy networking
+Build data center
+Hire infrastructure team
+Maintain hardware
+
+Cloud:
+
+Create resources
+      ↓
+Deploy application
+      ↓
+Scale when required
+      ↓
+Pay for resources
+
+Common cloud advantages include:
+
+On-demand resources
+Elasticity
+Global infrastructure
+Automation
+Reduced need for upfront hardware investment
+Managed services
+Disaster recovery options
+Faster deployment
+29. Why companies use Clo
