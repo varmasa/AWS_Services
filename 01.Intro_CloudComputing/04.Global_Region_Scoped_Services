@@ -1,0 +1,49 @@
+AWS has Global Services:
+• Identity and Access Management (IAM)
+• Route 53 (DNS service)
+• CloudFront (Content Delivery Network)
+• WAF (Web Application Firewall)
+
+
+Most AWS services are Region-scoped:
+• Amazon EC2 (Infrastructure as a Service)
+• Elastic Beanstalk (Platform as a Service)
+• Lambda (Function as a Service)
+• Rekognition (Software as a Service)
+
+
+
+🌍 GLOBAL
+│
+├── IAM
+└── Route 53
+
+
+🗺️ REGIONAL
+│
+├── EC2
+├── VPC
+├── ALB
+├── ASG
+├── RDS
+├── SNS
+└── CloudWatch
+
+
+⚠️ SPECIAL CASE
+│
+└── S3
+    Global access/namespace
+    +
+    Bucket belongs to a Region
+
+
+
+
+AWS = RESPONSIBILITY FOR 
+THE SECURITY OF 
+THE CLOUD
+
+CUSTOMER = RESPONSIBILITY FOR 
+THE SECURITY IN 
+THE CLOUD Basically Conifgurations.
