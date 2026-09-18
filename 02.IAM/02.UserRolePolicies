@@ -1,0 +1,302 @@
+The 4 Main IAM Components
+
+You should know these extremely well:
+
+IAM
+│
+├── Users
+├── Groups
+├── Roles
+└── Policies
+
+
+1. IAM User:
+An IAM User represents a person or application identity that needs long-term AWS access.
+
+Example:
+Your company has:
+
+Alice → Developer
+Bob   → DevOps Engineer
+John  → DBA
+
+You could have IAM users corresponding to those people.
+
+IAM
+│
+├── Alice
+├── Bob
+└── John
+
+
+2. IAM Group:
+Suppose your company has 20 developers.
+
+You don't want to individually attach the same permissions to every developer.
+
+Instead:
+
+Developers Group
+│
+├── Alice
+├── Bob
+├── Ravi
+└── Priya
+
+Attach a policy to the group:
+
+Developers
+    ↓
+S3 Read
+    ↓
+All members
+
+Now all members inherit the group's permissions.
+
+Real-world analogy
+
+Instead of giving 20 employees the same office key individually:
+
+"Everyone in the Development team gets access to this room."
+But in modern AWS environments, human users are generally better managed through federation/Identity Center rather than creating lots of long-lived IAM users.
+
+
+
+3. IAM Policy:
+A policy defines permissions.
+
+Think:
+
+Policy = Permission document
+
+Example:
+
+Allow
+    ↓
+S3
+    ↓
+Read objects
+
+A policy can say:
+
+Allow Alice to:
+    Read S3 objects
+
+or:
+
+Deny Alice from:
+    Delete S3 objects
+
+AWS IAM policies are commonly written as JSON.
+
+A simplified example:
+{
+  "Effect": "Allow",
+  "Action": "s3:GetObject",
+  "Resource": "arn:aws:s3:::saishop-images/*"
+}
+
+Meaning:
+  Allow reading objects from the saishop-images bucket.
+
+
+4.IAM Role:
+This is extremely important for DevOps.
+An IAM Role is an identity with permissions that can be assumed by trusted entities.
+Unlike a typical IAM user, a role isn't primarily a permanent username/password identity.
+
+Real-Time Example: EC2 → S3
+
+Suppose your EC2 application needs to upload images to S3.
+
+Bad approach:
+
+EC2
+ ↓
+Store AWS access key
+ ↓
+S3
+
+You don't want AWS credentials sitting inside:
+
+source code
+.env file
+configuration file
+Docker image
+
+Better:
+
+                 IAM Role
+                    ↓
+EC2 ───────────────→ S3
+
+You create:
+
+EC2-S3-Role
+
+Attach:
+
+S3 PutObject
+
+Then attach the role to EC2.
+
+Now:
+
+EC2
+ ↓
+IAM Role
+ ↓
+Temporary credentials
+ ↓
+S3
+
+This is a fundamental AWS security pattern.
+
+
+5. User vs Role
+
+IAM User
+Think:
+Person / long-term identity
+
+IAM Role
+Think:
+Temporary/assumed identity for a person, AWS service, or workload
+
+Example:
+
+Developer → assumes role → Production AWS resources
+
+EC2 → assumes role → S3
+
+GitHub Actions → assumes role → AWS
+
+
+
+6. Trust Policy vs Permission Policy
+This is one of the most important IAM concepts.
+
+A role has two different concepts:
+
+              IAM ROLE
+                 |
+       ┌─────────┴─────────┐
+       ↓                   ↓
+Trust Policy       Permission Policy
+       ↓                   ↓
+WHO can assume?    WHAT can they do?
+Trust Policy
+
+Answers:
+
+Who is allowed to assume this role?
+
+Example:
+
+EC2
+ ↓
+Can assume
+ ↓
+EC2-S3-Role
+Permission Policy
+
+Answers:
+
+What can the role do after assuming it?
+
+Example:
+
+EC2-S3-Role
+     ↓
+s3:PutObject
+     ↓
+S3 bucket
+Easy memory trick
+Trust Policy
+    ↓
+WHO?
+
+Permission Policy
+    ↓
+WHAT?
+
+
+
+7. Real Example — EC2 Accessing S3
+
+Let's build it step by step.
+
+Requirement:  Your application runs on EC2.
+It needs to upload invoices to:
+
+S3 bucket:
+saishop-invoices
+Step 1
+
+Create IAM role:
+
+SaiShop-EC2-S3-Role
+Step 2
+
+Trust:
+
+EC2 service
+
+can assume the role.
+
+Step 3
+
+Permission:
+
+s3:PutObject
+
+on:
+
+saishop-invoices/*
+Step 4
+
+Attach role to EC2.
+
+Architecture:
+
+             EC2
+              |
+              ↓
+      IAM Role
+              |
+              ↓
+       s3:PutObject
+              |
+              ↓
+        S3 Bucket
+
+No hard-coded AWS access keys required.
+
+
+Authentication vs Authorization
+
+Another very common interview question.
+
+Authentication
+
+Who are you?
+
+Example:
+
+Username + Password
+       ↓
+      IAM
+       ↓
+Identity verified
+Authorization
+
+What are you allowed to do?
+
+Example:
+User
+ ↓
+Can read S3 ✓
+Can delete S3 ✗
+Easy trick
+Authentication = WHO?
+Authorization  = WHAT?
