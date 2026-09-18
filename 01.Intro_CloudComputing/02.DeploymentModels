@@ -1,0 +1,313 @@
+1. Cloud Deployment Models
+
+A deployment model answers:
+
+"Where is the cloud infrastructure deployed, and who has access to it?"
+
+There are mainly 4 deployment models:
+
+Public Cloud
+Private Cloud
+Hybrid Cloud
+Community Cloud
+☁️ 1. Public Cloud
+
+In a public cloud, the infrastructure is owned and operated by a cloud provider and is made available to customers.
+
+Examples:
+
+AWS
+Azure
+Google Cloud
+Real-time example
+
+Suppose you start a small shopping website.
+
+You don't want to buy servers.
+
+You create:
+
+AWS
+ |
+ ├── EC2
+ ├── S3
+ ├── RDS
+ └── Load Balancer
+
+Your application runs completely on AWS.
+
+Simple analogy
+
+Think about a rented apartment.
+
+Apartment Owner
+      |
+      ↓
+    You rent
+      |
+      ↓
+    You use it
+
+You don't own the building.
+
+Similarly:
+
+AWS owns infrastructure
+        ↓
+You rent/use resources
+When useful?
+Startups
+Websites
+Mobile applications
+Dev/Test environments
+Most modern cloud applications
+🏢 2. Private Cloud
+
+A private cloud is dedicated to one organization.
+
+Example:
+
+A large bank doesn't want certain workloads running on shared public-cloud infrastructure.
+
+It can operate cloud infrastructure dedicated to the organization.
+
+             BANK
+              |
+       ┌──────┴──────┐
+       | Private     |
+       | Cloud       |
+       |             |
+       | Servers     |
+       | Storage     |
+       | Network     |
+       └─────────────┘
+Simple analogy
+
+Public cloud:
+
+🏨 Hotel room — infrastructure is shared among different customers.
+
+Private cloud:
+
+🏠 Your own house — dedicated to you.
+
+Common use cases
+
+Organizations with strict:
+
+Security requirements
+Compliance requirements
+Data-control requirements
+Internal infrastructure requirements
+🔀 3. Hybrid Cloud
+
+This is a combination of:
+
+Private Cloud + Public Cloud
+
+Real example:
+
+A bank keeps sensitive customer systems in its private environment but uses AWS for some applications, backups, analytics, or additional capacity.
+
+              Company
+                 |
+       ┌─────────┴─────────┐
+       ↓                   ↓
+ Private Cloud          AWS
+       |                   |
+ Sensitive             Web/App
+ systems              workloads
+       \                   /
+        \_________________/
+              Network
+Real-life analogy
+
+Imagine you have:
+
+🏠 Your own house → Private Cloud
+
+🏨 Hotel → Public Cloud
+
+You use both depending on your requirement.
+
+👥 4. Community Cloud
+
+Infrastructure is shared by organizations with similar requirements or interests.
+
+For example, several organizations in a particular regulated sector could use infrastructure designed around common compliance/security requirements.
+
+Organization A ──┐
+Organization B ──┼── Community Cloud
+Organization C ──┘
+
+This model is less commonly discussed than public, private, and hybrid cloud.
+
+📌 Deployment Models — Easy Table
+Model	Infrastructure	Example
+Public	Cloud provider	AWS
+Private	Dedicated to one organization	Bank's private cloud
+Hybrid	Public + Private	Bank + AWS
+Community	Shared by organizations with common requirements	Sector-specific cloud
+Remember:
+PUBLIC    → Everyone/customer-accessible
+PRIVATE   → One organization
+HYBRID    → Public + Private
+COMMUNITY → Organizations with common requirements
+2. Types of Cloud Computing
+
+Now a different question:
+
+"What type of service are you getting from the cloud?"
+
+The major service models are:
+
+IaaS
+PaaS
+SaaS
+
+You can think of them as how much infrastructure you have to manage yourself.
+
+🖥️ IaaS — Infrastructure as a Service
+
+You get infrastructure such as:
+
+Virtual machines
+Storage
+Networking
+
+Example:
+
+AWS EC2
+
+You create an EC2 instance:
+
+EC2
+ |
+ ├── CPU
+ ├── RAM
+ ├── Storage
+ └── Network
+
+You are responsible for things such as:
+
+Application
+Runtime
+OS
+Configuration
+
+while AWS manages the underlying physical infrastructure.
+
+Real-world example
+
+Suppose you rent an empty apartment.
+
+The building exists, but you need to arrange much of what's inside.
+
+AWS
+ ↓
+Infrastructure
+ ↓
+YOU
+ ↓
+OS
+Application
+Configuration
+Examples
+AWS EC2
+Azure Virtual Machines
+Google Compute Engine
+⚙️ PaaS — Platform as a Service
+
+Here the cloud provider manages more of the underlying platform.
+
+You primarily focus on your application.
+
+Conceptually:
+
+       YOU
+        ↓
+  Application
+        ↓
+     Platform
+        ↓
+ Infrastructure
+Real-world example
+
+Suppose you want to deploy a web application.
+
+Instead of:
+
+Create VM
+ ↓
+Install OS
+ ↓
+Install runtime
+ ↓
+Configure runtime
+ ↓
+Deploy application
+
+a PaaS offering can abstract much of that infrastructure/platform management.
+
+Analogy
+
+Instead of renting an empty apartment, imagine renting a fully equipped workspace.
+
+You bring your work.
+
+The provider handles much more of the environment.
+
+📱 SaaS — Software as a Service
+
+Here you simply use the software.
+
+You don't manage the underlying servers or operating system.
+
+Examples:
+
+Gmail
+Microsoft 365
+Salesforce
+
+For example:
+
+You
+ ↓
+Open Gmail
+ ↓
+Send Email
+
+You don't care:
+
+Which server?
+Which OS?
+Which storage?
+Which database?
+
+The service provider handles those details.
+
+🧠 IaaS vs PaaS vs SaaS
+
+This is a very common interview question.
+
+	IaaS	PaaS	SaaS
+You manage	More	Less	Very little
+Main focus	Infrastructure + app	Application	Using software
+Example	EC2	App platform/service	Gmail
+Flexibility	High	Medium	Lower
+Infrastructure management	More	Less	Provider handles it
+Easy memory trick
+IaaS → I get Infrastructure
+PaaS → I get Platform
+SaaS → I get Software
+💰 3. Cloud Pricing
+
+Now comes another important concept:
+
+How does cloud cost money?
+
+The basic idea is:
+
+Pay for what you use
+
+Instead of buying a physical server for ₹5 lakh upfront, you can provision cloud resources and incur charges based on the service, configuration, usage, and pricing model.
