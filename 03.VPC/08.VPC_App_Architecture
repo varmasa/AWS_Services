@@ -1,0 +1,73 @@
+01.  Imagine your company has:
+
+mycompany.com
+
+Users open:
+
+https://mycompany.com
+Step 1 — Route53
+
+DNS resolves:
+
+mycompany.com
+       |
+       v
+ALB
+Step 2 — ALB
+
+ALB receives HTTPS:
+
+443
+Step 3 — Application
+
+ALB forwards:
+
+8080
+
+to an application running in private subnets.
+
+Step 4 — Application accesses database
+App
+ |
+ | 5432
+ v
+RDS PostgreSQL
+Step 5 — Application needs external API
+App
+ |
+ v
+NAT Gateway
+ |
+ v
+Internet
+ |
+ v
+External API
+Complete flow
+                    USER
+                     |
+                     | HTTPS
+                     v
+                  Route53
+                     |
+                     v
+                    ALB
+                     |
+                     | 8080
+                     v
+             +---------------+
+             | EKS / EC2     |
+             | Private       |
+             +---------------+
+                |         |
+         5432   |         | HTTPS
+                |         |
+                v         v
+              RDS       NAT GW
+                          |
+                          v
+                       Internet
+
+
+
+02. 
