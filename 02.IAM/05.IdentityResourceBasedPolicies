@@ -1,0 +1,122 @@
+01. Identity-Based vs Resource-Based Policies:
+
+Another interview topic.
+
+Identity-based policy
+
+Attached to:
+User
+Group
+Role
+
+Example:
+
+Role
+ ↓
+Allow S3 GetObject
+Resource-based policy
+
+Attached to a resource.
+
+Example:
+
+S3 Bucket
+ ↓
+Bucket Policy
+
+A bucket policy can specify who is allowed to access the bucket.
+
+
+
+
+02. IAM Role in DevOps:
+This is where IAM becomes particularly important for your career.
+
+Imagine your pipeline:
+
+Developer
+   ↓
+GitHub
+   ↓
+GitHub Actions
+   ↓
+AWS
+
+The pipeline needs permission to deploy.
+
+Bad:
+
+GitHub
+ ↓
+AWS access key stored permanently
+
+Better modern approach:
+
+GitHub Actions
+       ↓
+OIDC
+       ↓
+Assume IAM Role
+       ↓
+Temporary credentials
+       ↓
+AWS
+
+This is an important real-world DevOps security pattern.
+
+
+03. IAM Role for EKS
+Suppose you later work with:
+
+Amazon EKS
+
+Kubernetes workloads may need access to AWS services.
+
+Instead of embedding AWS keys inside pods:
+
+Pod
+ ↓
+AWS Access Key ❌
+
+use AWS IAM-based workload identity mechanisms.
+
+Conceptually:
+
+Kubernetes Workload
+        ↓
+IAM Role
+        ↓
+AWS service
+
+This follows the same principle:
+
+Don't hard-code long-lived credentials into applications.
+
+
+
+04. IAM Role for Terraform
+Suppose you're using Terraform.
+
+Developer
+    ↓
+Terraform
+    ↓
+AWS
+
+Terraform needs permissions to create:
+
+VPC
+EC2
+ALB
+RDS
+S3
+
+A common production approach is for Terraform to authenticate using an assumed IAM role rather than embedding long-lived access keys in code.
+
+Terraform
+    ↓
+Assume Role
+    ↓
+IAM Role
+    ↓
+AWS resources
