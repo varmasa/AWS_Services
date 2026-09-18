@@ -1,0 +1,51 @@
+1. What is IAM?
+
+IAM = Identity and Access Management
+IAM answers two fundamental questions:
+
+Who are you?
+
+What are you allowed to do?
+For example:
+
+DevOps Engineer
+      ↓
+     IAM
+      ↓
+ ┌────┼────────────┐
+ ↓    ↓            ↓
+ EC2  S3          RDS
+ ✓    ✓            ✗
+
+The DevOps engineer might be allowed to work with EC2 and S3 but not modify the production database.
+
+
+2. Real-World Analogy 🏢
+
+Imagine an office.
+
+There are:
+
+Employees
+Managers
+Security guards
+IT administrators
+Visitors
+
+Everyone doesn't get access to every room.
+
+For example:
+
+Employee
+   ↓
+Office ✓
+Server Room ✗
+CEO Room ✗
+
+IAM works similarly.
+
+AWS Account
+    ↓
+   IAM
+    ↓
+Who can access what?
