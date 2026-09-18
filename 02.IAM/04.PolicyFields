@@ -1,0 +1,123 @@
+1. IAM Policy Structure
+
+A policy commonly contains:
+Effect
+Action
+Resource
+
+Think:
+
+Effect   → Allow/Deny
+Action   → What operation?
+Resource → On what?
+
+Example:
+
+{
+  "Effect": "Allow",
+  "Action": "ec2:DescribeInstances",
+  "Resource": "*"
+}
+
+Meaning:
+
+Allow describing EC2 instances.
+
+
+2. Action
+Action specifies what operation is allowed or denied.
+
+Examples:
+
+s3:GetObject
+s3:PutObject
+s3:DeleteObject
+
+ec2:StartInstances
+ec2:StopInstances
+
+rds:DescribeDBInstances
+
+Think:
+
+service:operation
+
+
+
+3. Resource:
+Resource tells AWS which resource the permission applies to.
+
+For example:
+
+Specific S3 bucket
+
+rather than:
+
+Every S3 bucket
+
+This helps implement least privilege.
+
+
+
+4. "*" — Be Careful
+You will often see:
+
+"Resource": "*"
+
+This means all resources applicable to that action.
+
+Example:
+
+{
+  "Effect": "Allow",
+  "Action": "s3:*",
+  "Resource": "*"
+}
+
+That's extremely broad.
+
+Compare:
+
+s3:*
+*
+
+with:
+
+s3:GetObject
+specific-bucket/*
+
+The second is much more restrictive.
+
+
+5. Managed Policy vs Inline Policy:
+Two important policy types.
+
+AWS Managed Policy
+
+AWS provides the policy.
+
+Example:
+
+AmazonS3ReadOnlyAccess
+
+You can attach it to identities according to your requirements.
+
+Customer Managed Policy
+
+Your organization creates and manages the policy.
+
+Example:
+
+SaiShop-Production-S3-Read
+
+This gives you more control over the exact permissions.
+
+Inline Policy
+
+A policy embedded directly into a single identity.
+
+User
+ ↓
+Inline Policy
+
+Inline policies are tightly coupled to that one identity.
