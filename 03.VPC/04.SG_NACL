@@ -1,0 +1,94 @@
+01. Security Group:
+Security Group = stateful virtual firewall for network interfaces/resources.
+
+Example:
+
+Your application runs on:
+
+EC2
+10.0.10.50
+Port 8080
+
+You can configure:
+
+Inbound:
+
+Source             Port
+ALB Security Group 8080
+
+Meaning:
+
+Only traffic coming from the ALB security group can reach port 8080.
+
+This is much better than:
+
+0.0.0.0/0 ---> 8080
+
+for a private application server.
+
+
+
+02. Stateful means what?
+
+Suppose:
+
+Client ---> EC2
+        Port 80
+
+If EC2 accepts the request, the response traffic is automatically allowed by the security group because security groups are stateful.
+You don't have to create a separate inbound rule for the return traffic.
+
+
+
+03. Network ACL:
+
+NACL = Network Access Control List
+
+It works at the subnet level.
+
+Security Group:
+
+Resource level
+
+NACL:
+
+Subnet level
+
+Comparison:
+
+Feature	Security Group	NACL
+Level	ENI/resource	Subnet
+Stateful	Yes	No
+
+
+Availability Zones: An AWS Region contains multiple Availability Zones.
+Example:
+Region: Mumbai
+
+        VPC
+         |
+   +-----+-----+
+   |           |
+  AZ-1        AZ-2
+   |           |
+Public       Public
+Subnet       Subnet
+
+For high availability, don't put your entire application into one AZ.
+
+Instead:
+
+AZ-1                    AZ-2
+
+ALB                     ALB
+ |                       |
+EC2                     EC2
+ |                       |
+RDS                     RDS
+
+More precisely, AWS load balancers are deployed across subnets/AZs, and managed databases such as RDS can use Multi-AZ configurations.
+Rules	Allow only	Allow + Deny
+Return traffic	Automatically allowed	Must be explicitly handled
+Common use	Primary resource firewall	Additional subnet-level control
+
+For most AWS application designs, Security Groups are the primary control.
