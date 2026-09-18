@@ -1,0 +1,116 @@
+01. Site-to-Site VPN
+
+Connects an on-premises network to an AWS VPC over an encrypted VPN connection, typically using IPsec.
+
+Real-time example:
+
+Company On-Premises
+10.10.0.0/16
+       |
+       | Encrypted VPN / Internet
+       |
+       v
+AWS Site-to-Site VPN
+       |
+       v
+Virtual Private Gateway
+       |
+       v
+AWS VPC
+10.0.0.0/16
+       |
+       +---- EC2
+       +---- RDS
+       +---- EKS
+
+Example:
+
+Your company has:
+
+On-Prem
+192.168.0.0/16
+
+AWS:
+
+VPC
+10.0.0.0/16
+
+You want an on-prem application to communicate with an AWS database:
+
+On-Prem App
+    |
+    | VPN
+    v
+AWS VPC
+    |
+    v
+RDS
+
+
+
+02. AWS Direct Connect
+
+Direct Connect provides a dedicated network connection from your on-premises network to AWS.
+
+Conceptually:
+
+Company Data Center
+       |
+       | Dedicated connection
+       |
+       v
+AWS Direct Connect
+       |
+       v
+AWS
+       |
+       v
+VPC
+
+Compared with VPN:
+
+                 VPN                 Direct Connect
+                 |                   |
+On-Prem -------- Internet -------- AWS
+   |                                  |
+   |                                  |
+   +---------- Dedicated ------------+
+
+A simplified comparison:
+
+	Site-to-Site VPN	Direct Connect
+Connection	Internet-based	Dedicated network connection
+Encryption	IPsec	Not inherently encrypted
+Setup	Generally quicker	More involved
+Latency	Internet-dependent	More predictable
+Use case	Hybrid connectivity	Enterprise/high-throughput connectivity
+
+Important: Direct Connect itself doesn't automatically encrypt traffic. If encryption is required, additional mechanisms such as MACsec (where supported) or VPN over Direct Connect may be used.
+
+
+
+
+03. VPC Flow Logs
+
+Very important for DevOps troubleshooting.
+
+Example:
+
+Application can't connect
+       |
+       v
+Security Group?
+       |
+       v
+NACL?
+       |
+       v
+Route?
+       |
+       v
+VPC Flow Logs
+       |
+       v
+ACCEPT / REJECT
+
+You'll use this when troubleshooting network connectivity.
