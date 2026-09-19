@@ -1,0 +1,145 @@
+01. IAM Role for EC2
+
+This is much more important for DevOps than storing AWS credentials on the server.
+
+Bad approach:
+
+EC2
+ └── AWS_ACCESS_KEY_ID
+ └── AWS_SECRET_ACCESS_KEY
+
+Better:
+
+EC2
+ ↓
+IAM Role
+ ↓
+Temporary credentials
+ ↓
+AWS APIs
+
+Example:
+
+EC2 needs to download artifacts from S3:
+
+EC2
+ ↓
+IAM Role
+ ↓
+S3 permission
+ ↓
+aws s3 cp ...
+
+No hardcoded access keys.
+
+
+
+02. User Data:
+User Data allows you to execute commands during instance initialization.
+
+Example:
+
+#!/bin/bash
+
+dnf update -y
+dnf install -y nginx
+systemctl enable nginx
+systemctl start nginx
+
+When EC2 starts:
+
+EC2 Launch
+   ↓
+User Data
+   ↓
+Install software
+   ↓
+Configure server
+   ↓
+Application ready
+
+This is extremely useful for automation.
+
+
+
+03. Real DevOps Example — EC2 Bootstrap
+Imagine you need 10 servers.
+
+Manual:
+
+Server 1 → SSH → Install Docker
+Server 2 → SSH → Install Docker
+Server 3 → SSH → Install Docker
+...
+Server 10
+
+Bad DevOps approach.
+
+Instead:
+
+Launch Template
+      ↓
+User Data
+      ↓
+Install Docker
+      ↓
+Configure application
+      ↓
+Ready
+
+Then Auto Scaling can launch identical instances.
+
+
+
+04. ENI
+ENI = Elastic Network Interface
+
+Think of it as the network interface attached to EC2.
+
+It has things such as:
+
+Private IP
+Security Groups
+MAC address
+Subnet association
+
+Conceptually:
+
+EC2
+ |
+ ENI
+ |
+Private IP
+ |
+Subnet
+
+This becomes especially useful when troubleshooting networking.
+
+
+
+05. Elastic IP
+An Elastic IP is a static public IPv4 address associated with your AWS account that you can associate with an EC2 instance or other supported resources.
+
+Why?
+
+Normal public IP:
+
+Stop EC2
+ ↓
+Start EC2
+ ↓
+Public IP may change
+
+Elastic IP:
+
+Static public IPv4
+
+However, in modern production architectures, you often avoid putting an Elastic IP directly on application servers.
+
+Instead:
+
+Internet
+ ↓
+ALB
+ ↓
+EC2
