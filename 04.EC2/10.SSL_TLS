@@ -1,0 +1,466 @@
+If you already have an **SSL/TLS certificate**, the exact steps depend on where your website is running. For the AWS setup you've been learning, the most common production architecture is:
+
+```text
+User
+  ↓
+https://www.example.com
+  ↓
+Route 53
+  ↓
+Application Load Balancer (443)
+  ↓
+EC2 instances (80)
+```
+
+The important point is: **you normally terminate HTTPS at the ALB**, rather than installing the certificate individually on every EC2 instance.
+
+## AWS steps
+
+### 1. Have a domain name
+
+Example:
+
+```text
+www.example.com
+```
+
+Your domain can be registered with Route 53 or another registrar.
+
+---
+
+### 2. Get/import the certificate in AWS Certificate Manager (ACM)
+
+Go to:
+
+```text
+AWS Console
+ → Certificate Manager (ACM)
+ → Request / Import certificate
+```
+
+If you already have a certificate from another CA, you can **import the certificate into ACM**.
+
+For a certificate such as:
+
+```text
+example.com
+www.example.com
+```
+
+make sure the certificate covers the hostname users will actually access.
+
+### Important
+
+For an **internet-facing ALB**, the ACM certificate needs to be in the **same AWS Region as the ALB**.
+
+For example:
+
+```text
+ALB
+Region: ap-south-1
+
+        ↓
+
+ACM Certificate
+Region: ap-south-1
+```
+
+---
+
+# 3. Validate the certificate
+
+If you're requesting an ACM certificate, you'll generally choose:
+
+```text
+DNS validation
+```
+
+ACM gives you a DNS CNAME record.
+
+For example, conceptually:
+
+```text
+_acme-challenge.example.com
+        ↓
+some-validation-value.acm-validations.aws
+```
+
+Add that CNAME to your DNS provider.
+
+If you're using Route 53, ACM can often create the validation record for you.
+
+Wait until:
+
+```text
+Certificate status = ISSUED
+```
+
+---
+
+# 4. Create/Use an Application Load Balancer
+
+Your architecture should be:
+
+```text
+                   Internet
+                      ↓
+                HTTPS :443
+                      ↓
+                    ALB
+                      ↓
+             Target Group
+                      ↓
+                EC2 instances
+```
+
+If you already have an ALB, you don't need to create another one.
+
+---
+
+# 5. Create an HTTPS listener on port 443
+
+Go to:
+
+```text
+EC2
+ → Load Balancers
+ → Your ALB
+ → Listeners
+ → Add listener
+```
+
+Configure:
+
+```text
+Protocol: HTTPS
+Port: 443
+```
+
+Then select your ACM certificate.
+
+For example:
+
+```text
+HTTPS :443
+Certificate:
+www.example.com
+```
+
+---
+
+# 6. Configure the listener action
+
+Typically:
+
+```text
+HTTPS :443
+        ↓
+Forward to
+        ↓
+Target Group
+        ↓
+EC2
+```
+
+So:
+
+```text
+Client
+  ↓
+HTTPS :443
+  ↓
+ALB
+  ↓
+HTTP :80
+  ↓
+EC2
+```
+
+The connection between the **user and ALB is encrypted**.
+
+---
+
+# 7. Configure HTTP → HTTPS redirect
+
+You generally don't want users accessing:
+
+```text
+http://www.example.com
+```
+
+Instead, redirect:
+
+```text
+HTTP :80
+     ↓
+301 Redirect
+     ↓
+HTTPS :443
+```
+
+Your ALB listeners become:
+
+```text
+             ALB
+              │
+       ┌──────┴──────┐
+       ↓             ↓
+    HTTP :80      HTTPS :443
+       ↓             ↓
+    Redirect       Target Group
+                      ↓
+                     EC2
+```
+
+For the HTTP listener:
+
+```text
+Protocol: HTTP
+Port: 80
+
+Action:
+Redirect to HTTPS
+Port: 443
+Status code: 301
+```
+
+---
+
+# 8. Configure Route 53
+
+Now your domain needs to point to the ALB.
+
+Go to:
+
+```text
+Route 53
+ → Hosted Zones
+ → example.com
+```
+
+Create an **A record**:
+
+```text
+Name: www
+Type: A
+Alias: Yes
+Target: Your ALB
+```
+
+Conceptually:
+
+```text
+www.example.com
+       ↓
+Route 53
+       ↓
+ALB
+       ↓
+EC2
+```
+
+If you also want:
+
+```text
+example.com
+```
+
+you can configure that hostname as well, depending on your desired setup.
+
+---
+
+# 9. Security Groups
+
+Your ALB security group should allow:
+
+```text
+Inbound
+
+TCP 443
+Source: 0.0.0.0/0
+```
+
+and usually:
+
+```text
+TCP 80
+Source: 0.0.0.0/0
+```
+
+if you're using the port-80 listener to redirect HTTP → HTTPS.
+
+Your EC2 security group should **not need to expose port 80 to the entire Internet**.
+
+Instead:
+
+```text
+ALB SG
+   ↓
+EC2 SG
+```
+
+For example:
+
+```text
+EC2 Security Group
+
+HTTP :80
+Source: ALB Security Group
+```
+
+This is a much better production design than:
+
+```text
+EC2 :80
+Source: 0.0.0.0/0
+```
+
+---
+
+# 10. Test
+
+Open:
+
+```text
+https://www.example.com
+```
+
+You should see the browser's secure connection indicator.
+
+Test HTTP too:
+
+```text
+http://www.example.com
+```
+
+It should redirect to:
+
+```text
+https://www.example.com
+```
+
+You can also verify:
+
+```text
+HTTPS → 443
+HTTP  → 80 → redirect → 443
+```
+
+---
+
+# 🔥 Complete Real-Time Architecture
+
+For the AWS DevOps setup you've been studying, I'd recommend understanding this architecture:
+
+```text
+                         Internet
+                            │
+                            │ HTTPS :443
+                            ↓
+                     ┌─────────────┐
+                     │     ALB     │
+                     │             │
+                     │ ACM Cert    │
+                     └──────┬──────┘
+                            │
+                       HTTP :80
+                            │
+                            ↓
+                    ┌───────────────┐
+                    │ Target Group  │
+                    └───────┬───────┘
+                            │
+               ┌────────────┼────────────┐
+               ↓            ↓            ↓
+             EC2-1        EC2-2        EC2-3
+```
+
+And DNS:
+
+```text
+User
+ ↓
+www.example.com
+ ↓
+Route 53
+ ↓
+ALB
+ ↓
+EC2
+```
+
+Certificate:
+
+```text
+ACM
+ ↓
+Certificate for www.example.com
+ ↓
+ALB HTTPS Listener :443
+```
+
+---
+
+## ⭐ Where does SSL actually terminate?
+
+In this architecture:
+
+```text
+Browser
+   │
+   │ HTTPS 🔒
+   ↓
+  ALB
+   │
+   │ HTTP
+   ↓
+  EC2
+```
+
+**SSL/TLS terminates at the ALB.**
+
+You don't necessarily need to install the certificate on the EC2 web server.
+
+If you want **end-to-end encryption**, you can instead do:
+
+```text
+Browser
+   │ HTTPS
+   ↓
+  ALB
+   │ HTTPS
+   ↓
+  EC2
+```
+
+In that design, you also configure HTTPS on the EC2/web-server side.
+
+---
+
+## 🧠 Interview answer
+
+If an interviewer asks:
+
+> **"How do you make an EC2-hosted website HTTPS?"**
+
+You can say:
+
+> "I would request or import the SSL/TLS certificate into ACM, create an HTTPS listener on the Application Load Balancer on port 443 and associate the ACM certificate with it. The listener forwards traffic to the target group containing the EC2 instances. I would configure the port-80 listener to redirect HTTP to HTTPS and create a Route 53 DNS record pointing the domain to the ALB. The ALB security group allows HTTPS from the Internet, while the EC2 security group allows application traffic only from the ALB security group."
+
+### The 6 things to remember
+
+```text
+1. Domain
+      ↓
+2. SSL/TLS Certificate → ACM
+      ↓
+3. ALB HTTPS Listener :443
+      ↓
+4. Target Group → EC2
+      ↓
+5. HTTP :80 → HTTPS :443 redirect
+      ↓
+6. Route 53 → ALB
+```
+
+**That's the standard AWS production pattern you should know.**
