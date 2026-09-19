@@ -1,0 +1,129 @@
+01. AMI
+
+AMI = Amazon Machine Image
+
+Think of AMI as:
+
+A template used to create EC2 instances.
+
+Example:
+
+Amazon Linux 2023 AMI
+        ↓
+Launch EC2
+        ↓
+New EC2 Server
+
+An AMI can contain:
+
+Operating System
++
+Software
++
+Configuration
+Example
+
+You have configured a server:
+
+Amazon Linux
+Java 21
+Docker
+Nginx
+Monitoring Agent
+Application dependencies
+
+You create a custom AMI.
+
+Then:
+
+Custom AMI
+    ↓
+    ├── EC2-1
+    ├── EC2-2
+    ├── EC2-3
+    └── EC2-4
+
+Very useful for:
+
+Auto Scaling
+Golden AMI
+Disaster recovery
+Standardized servers
+Faster provisioning
+
+
+
+02. Instance Types
+
+This determines the hardware characteristics of your EC2.
+
+Think:
+
+Instance Type
+     |
+     +-- CPU
+     +-- Memory
+     +-- Network
+     +-- Storage capabilities
+
+Examples:
+
+t3.micro
+t3.medium
+m7i.large
+c7i.large
+r7i.large
+
+| Family | Purpose                     |
+| ------ | --------------------------- |
+| T      | Burstable/general workloads |
+| M      | General purpose             |
+| C      | Compute optimized           |
+| R      | Memory optimized            |
+| I      | Storage optimized           |
+| G/P    | GPU workloads               |
+
+Real-world example
+
+Spring Boot application:
+
+m7i.large
+
+CPU-intensive workload:
+
+c7i.large
+
+Large in-memory application:
+
+r7i.large
+
+Don't memorize every instance type.
+
+Understand why you'd choose a family.
+
+
+
+03. vCPU and RAM
+
+Suppose:
+
+m7i.large
+
+Think:
+
+vCPU → processing power
+RAM  → memory
+
+If your application crashes because of memory exhaustion:
+
+Application
+     ↓
+RAM usage increases
+     ↓
+OOM
+
+You might need:
+
+larger instance
+
+or better application/resource management.
