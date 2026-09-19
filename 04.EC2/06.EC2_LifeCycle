@@ -50,6 +50,20 @@ Terminate
 → EBS deletion depends on configuration
 
 
+EC2 Hibernate:
+EC2 Instance
+ 
+• Introducing EC2 Hibernate: 
+• The in-memory (RAM) state is preserved
+• The instance boot is much faster! 
+(the OS is not stopped / restarted)
+• Under the hood: the RAM state is written 
+to a file in the root EBS volume
+• The root EBS volume must be encrypted
+• Use cases: 
+• Long-running processing
+• Saving the RAM state
+• Services that take time to initialize
 
 03. Reboot
 Reboot is similar to restarting the operating system.
