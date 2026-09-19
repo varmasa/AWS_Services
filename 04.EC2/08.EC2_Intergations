@@ -1,0 +1,315 @@
+01. EC2 + Docker
+
+A very common setup:
+
+EC2
+ |
+ Docker
+ |
+ +-- Container 1
+ +-- Container 2
+ +-- Container 3
+
+Example:
+
+EC2
+ ↓
+Docker
+ ↓
+Spring Boot Container
+ ↓
+Port 8080
+
+But for container orchestration at scale, you would often consider:
+
+ECS
+EKS
+
+rather than manually managing many Docker containers on EC2.
+
+
+
+02. EC2 + Jenkins
+
+A common DevOps lab architecture:
+
+Developer
+   ↓
+GitHub
+   ↓
+Jenkins
+   ↓
+Build
+   ↓
+Docker Image
+   ↓
+Deploy
+   ↓
+EC2
+
+Jenkins itself can run on EC2:
+
+EC2
+ └── Jenkins
+
+Or Jenkins can run elsewhere and deploy to EC2.
+
+
+
+03. EC2 + Terraform
+
+Instead of manually clicking:
+
+AWS Console
+ ↓
+Launch EC2
+
+Terraform:
+
+main.tf
+   ↓
+terraform plan
+   ↓
+terraform apply
+   ↓
+EC2
+
+Example:
+
+resource "aws_instance" "app" {
+  ami           = "ami-xxxxxxxx"
+  instance_type = "t3.micro"
+}
+
+In real projects, you'd normally also manage:
+
+VPC
+Subnet
+Security Group
+IAM Role
+Launch Template
+ALB
+ASG
+
+with Terraform.
+
+
+
+
+04. EC2 + S3
+
+A common application pattern:
+
+EC2
+ ↓
+IAM Role
+ ↓
+S3
+
+Example:
+
+Application needs an artifact:
+
+S3
+ └── app.jar
+
+EC2
+ ↓
+Download app.jar
+ ↓
+Run application
+
+No hardcoded AWS credentials.
+
+
+
+
+05. EC2 + Systems Manager
+
+AWS Systems Manager (SSM) is very important for modern DevOps.
+
+Instead of:
+
+Laptop
+ ↓
+SSH
+ ↓
+EC2
+
+you can use:
+
+AWS Systems Manager
+ ↓
+EC2
+
+For example, Session Manager can provide shell access without requiring inbound SSH access.
+
+This can reduce the need to expose port 22.
+
+
+
+06. EC2 + Secrets Manager
+
+Don't do:
+
+application.properties
+
+DB_PASSWORD=password123
+
+Instead:
+
+EC2
+ ↓
+IAM Role
+ ↓
+Secrets Manager
+ ↓
+Database credentials
+
+Your application retrieves secrets securely.
+
+
+
+07. EC2 + Parameter Store
+
+Similarly:
+
+SSM Parameter Store
+       ↓
+Configuration
+       ↓
+EC2 Application
+
+Useful for:
+
+Environment variables
+Application configuration
+Non-secret parameters
+Some secrets
+
+
+
+
+08. EC2 Deployment Strategies
+
+You should know these for DevOps interviews.
+
+1.Rolling deployment
+A rolling deployment means:
+
+Replace old application instances with new application instances gradually, instead of replacing all instances at once.
+
+It is commonly used with EC2 Auto Scaling Groups, Kubernetes, ECS, etc.
+
+1. Simple Example
+
+Suppose your production application has 6 EC2 instances:
+
+                ALB
+                 ↓
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+     EC2-1     EC2-2     EC2-3
+     v1.0      v1.0      v1.0
+
+       ↓
+
+     EC2-4     EC2-5     EC2-6
+     v1.0      v1.0      v1.0
+
+You release v2.0.
+
+Instead of terminating all 6 instances:
+
+❌ EC2-1
+❌ EC2-2
+❌ EC2-3
+❌ EC2-4
+❌ EC2-5
+❌ EC2-6
+
+you gradually replace them:
+
+Step 1:
+v1 v1 v1 v1 v1 v1
+
+Step 2:
+v2 v1 v1 v1 v1 v1
+
+Step 3:
+v2 v2 v1 v1 v1 v1
+
+Step 4:
+v2 v2 v2 v1 v1 v1
+
+...
+
+Final:
+v2 v2 v2 v2 v2 v2
+
+That's a rolling deployment.
+
+Deploy
+
+EC2-1 → new
+EC2-2 → new
+EC2-3 → new
+
+2. Blue/Green
+Blue
+ ├── EC2
+ ├── EC2
+ └── EC2
+
+Green
+ ├── EC2
+ ├── EC2
+ └── EC2
+
+Traffic switches:
+
+Blue
+ ↓
+Green
+
+
+3. Canary
+
+Small percentage first:
+
+95% → old
+5%  → new
+
+Then gradually increase if the deployment is healthy.
+
+
+
+Golden AMI
+
+Very common DevOps concept.
+
+Instead of configuring every server after launch:
+
+Launch EC2
+ ↓
+Install everything
+ ↓
+Configure everything
+
+Create a standardized image:
+
+
+Golden AMI
+ ├── OS
+ ├── Security configuration
+ ├── Docker
+ ├── Monitoring agent
+ └── Required dependencies
+
+Then:
+
+Golden AMI
+    ↓
+ASG
+ ↓ ↓ ↓
+EC2 EC2 EC2
