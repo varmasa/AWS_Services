@@ -1,0 +1,101 @@
+AWS EC2 —
+Think of EC2 as: A virtual server in AWS where you can run applications, Docker, Jenkins, monitoring agents, web servers, etc.
+
+A typical DevOps architecture looks like:
+
+                         Internet
+                            |
+                       Route 53
+                            |
+                      Application LB
+                            |
+              +-------------+-------------+
+              |                           |
+         EC2 Instance 1              EC2 Instance 2
+         AZ-1 / Private              AZ-2 / Private
+              |                           |
+           Docker                       Docker
+              |                           |
+          Application                 Application
+              +-------------+-------------+
+                            |
+                          RDS
+
+1. What exactly is EC2?
+EC2 = Elastic Compute Cloud
+It provides resizable compute capacity in AWS.
+
+Instead of buying a physical server:
+
+Traditional:
+
+Buy Server
+   ↓
+Install OS
+   ↓
+Configure Network
+   ↓
+Install Application
+   ↓
+Maintain Hardware
+
+AWS:
+
+AWS Console / CLI / Terraform
+          ↓
+       EC2
+          ↓
+   Choose AMI + Instance Type
+          ↓
+      Launch Server
+Real-time example
+
+Suppose your company has:
+
+Java Spring Boot Application
+
+You could launch:
+
+EC2
+ ├── Amazon Linux
+ ├── Java
+ ├── Application
+ └── Port 8080
+
+Users access it through:
+
+http://server-ip:8080
+
+In production, you normally wouldn't expose EC2 directly. You would use:
+
+User
+ ↓
+Route 53
+ ↓
+ALB
+ ↓
+EC2
+
+
+2. EC2 Components You MUST Know
+
+For interviews, understand these deeply:
+
+EC2
+│
+├── AMI
+├── Instance Type
+├── EBS
+├── Security Group
+├── Key Pair
+├── IAM Role
+├── VPC
+├── Subnet
+├── Elastic IP
+├── User Data
+├── ENI
+├── Placement
+├── Monitoring
+└── Auto Scaling
+
+These are the core pieces.
