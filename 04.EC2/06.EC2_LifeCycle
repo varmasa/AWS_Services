@@ -1,0 +1,190 @@
+01. EC2 Lifecycle
+
+Understand this:
+
+Pending
+   ↓
+Running
+   ↓
+Stopping
+   ↓
+Stopped
+   ↓
+Starting
+   ↓
+Running
+
+Running
+   ↓
+Terminating
+   ↓
+Terminated
+
+Important:
+
+Stop
+Instance is powered off.
+EBS volumes normally remain.
+
+Terminate
+Instance is permanently removed.
+Root EBS may also be deleted depending on its DeleteOnTermination setting.
+
+
+
+02. Stop vs Terminate
+Interview question:
+
+What is the difference between stopping and terminating an EC2 instance?
+
+Answer:
+
+Stop
+→ VM shuts down
+→ Can start again
+→ EBS generally remains
+
+Terminate
+→ Instance is deleted
+→ Cannot restart that same instance
+→ EBS deletion depends on configuration
+
+
+
+03. Reboot
+Reboot is similar to restarting the operating system.
+
+EC2
+ ↓
+Reboot
+ ↓
+Same instance
+
+It generally doesn't change the instance's private IP.
+
+
+
+
+04. EC2 Image Builder 
+It is an AWS service used to automatically create, customize, test, and distribute machine images, such as AMIs.
+
+Instead of manually creating an EC2 server every time, you create a standardized golden AMI automatically.
+
+Simple idea
+
+Without Image Builder:
+
+Launch EC2
+   ↓
+Install Java
+   ↓
+Install Docker
+   ↓
+Install CloudWatch Agent
+   ↓
+Install Security tools
+   ↓
+Configure settings
+   ↓
+Create AMI manually
+
+With Image Builder:
+
+Image Builder Pipeline
+        ↓
+Launch temporary EC2
+        ↓
+Install/configure software
+        ↓
+Run tests
+        ↓
+Create AMI
+        ↓
+Distribute AMI
+        ↓
+Use AMI in EC2 / ASG
+1. What problem does Image Builder solve?
+
+Imagine your company has 50 EC2 instances.
+
+Every instance needs:
+
+Amazon Linux
+Docker
+AWS CLI
+CloudWatch Agent
+Security Agent
+Java
+Company certificates
+Monitoring configuration
+
+If engineers manually configure every server:
+
+EC2-1 → configure manually
+EC2-2 → configure manually
+EC2-3 → configure manually
+...
+EC2-50 → configure manually
+
+You can easily end up with:
+
+EC2-1 → Docker 28
+EC2-2 → Docker 27
+EC2-3 → Docker 28
+EC2-4 → missing CloudWatch agent
+
+This creates configuration drift.
+
+Image Builder solves this by creating a standardized image.
+
+              EC2 Image Builder
+                     ↓
+             Golden AMI
+                     ↓
+       ┌─────────────┼─────────────┐
+       ↓             ↓             ↓
+     EC2-1         EC2-2         EC2-3
+
+All instances start from the same baseline.
+
+
+05. Monitoring
+EC2 integrates with:
+CloudWatch
+
+You can monitor things like:
+
+CPUUtilization
+NetworkIn
+NetworkOut
+Disk-related metrics
+Status checks
+
+Important distinction:
+
+EC2 basic monitoring doesn't automatically give you every OS-level metric such as memory utilization.
+
+For memory/disk-space/process-level metrics, you typically install/configure the CloudWatch agent or another monitoring agent.
+
+
+
+
+06. EC2 Status Checks
+Two important concepts:
+
+System Status Check
+Instance Status Check
+
+System check:
+Problem with underlying AWS infrastructure.
+
+Instance check:
+Problem associated with the instance/OS.
+
+Example:
+
+EC2 unreachable
+      ↓
+Check status checks
+      ↓
+Determine infrastructure vs instance issue
