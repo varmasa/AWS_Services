@@ -1,0 +1,211 @@
+01. ALB + VPC:
+Suppose your application runs on:
+
+EC2 : 8080
+
+You don't want users accessing EC2 directly.
+
+Instead:
+
+Internet
+    |
+    v
+ALB : 443
+    |
+    v
+EC2 : 8080
+
+Security groups:
+
+ALB-SG
+
+Inbound:
+443 from 0.0.0.0/0
+
+EC2:
+
+EC2-SG
+
+Inbound:
+8080 from ALB-SG
+
+This creates a security boundary:
+
+Internet
+   |
+   | HTTPS
+   v
+ALB
+   |
+   | HTTP : 8080
+   v
+EC2
+
+
+
+
+02. RDS + VPC:
+Your database should generally not be publicly accessible for a typical application architecture.
+
+Example:
+
+Internet
+   |
+   v
+ALB
+   |
+   v
+Application
+   |
+   v
+RDS
+
+Subnets:
+
+Public Subnets
+      |
+      v
+ALB
+
+Private App Subnets
+      |
+      v
+EC2 / EKS
+
+Private DB Subnets
+      |
+      v
+RDS
+
+Security Groups:
+
+ALB-SG
+   |
+   v
+APP-SG
+   |
+   v
+DB-SG
+
+DB-SG:
+
+Inbound:
+3306 from APP-SG
+
+Not:
+
+3306 from 0.0.0.0/0
+
+
+
+03. Complete production-style VPC
+
+Here's the architecture you should understand as an AWS DevOps engineer:
+
+                         INTERNET
+                             |
+                             v
+                    +----------------+
+                    | Internet GW    |
+                    +----------------+
+                       /          \
+                      /            \
+                     v              v
+
+              PUBLIC SUBNET A   PUBLIC SUBNET B
+                  AZ-1               AZ-2
+                     |                 |
+                     +-------+---------+
+                             |
+                            ALB
+                             |
+                +------------+------------+
+                |                         |
+                v                         v
+        PRIVATE APP SUBNET A      PRIVATE APP SUBNET B
+             AZ-1                       AZ-2
+                |                         |
+              EC2/EKS                  EC2/EKS
+                |                         |
+                +------------+------------+
+                             |
+                             v
+                       PRIVATE DB
+                       SUBNET A/B
+                             |
+                             v
+                            RDS
+
+
+Private subnets ---> NAT Gateway ---> Internet Gateway ---> Internet
+
+
+
+
+04. Where does DevOps come into VPC?
+
+This is where VPC becomes extremely important for your career.
+
+Suppose you have:
+
+Developer
+    |
+    v
+GitHub
+    |
+    v
+Jenkins
+    |
+    v
+Docker Build
+    |
+    v
+ECR
+    |
+    v
+EKS
+    |
+    v
+ALB
+    |
+    v
+Users
+
+Networking may look like:
+
+                    GitHub
+                       |
+                       v
+                    Jenkins
+                       |
+                       v
+                    AWS ECR
+                       |
+                       v
+              +----------------+
+              |      VPC       |
+              |                |
+              |   ALB          |
+              |    |           |
+              |    v           |
+              |  EKS           |
+              |    |           |
+              |    v           |
+              |   RDS          |
+              +----------------+
+
+Now you need to understand:
+
+Which subnet?
+Which route table?
+Which security group?
+Internet or private connectivity?
+NAT required?
+VPC endpoint required?
+Which AZ?
+Public or private EKS nodes?
+How does ALB reach pods?
+How does EKS pull images from ECR?
+How does the application reach RDS?
+
+That's DevOps networking.

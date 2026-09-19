@@ -1,0 +1,109 @@
+1. What is a VPC?
+
+VPC = Virtual Private Cloud
+
+Think of a VPC as your private network inside AWS.
+
+In a traditional company:
+
+Company
+   |
+   +---- Router
+          |
+          +---- Servers
+          +---- Databases
+          +---- Applications
+
+In AWS:
+
+AWS Account
+     |
+     +---- VPC
+            |
+            +---- EC2
+            +---- ALB
+            +---- RDS
+            +---- EKS
+
+Example:
+
+You create:
+
+VPC: 10.0.0.0/16
+
+This gives your AWS network a private IP range.
+
+
+
+2. What is CIDR?
+This is extremely important for VPC.
+
+Suppose:
+10.0.0.0/16
+
+The /16 determines how many IP addresses are available.
+
+For example:
+
+10.0.0.0/16
+
+contains:
+
+2^32-16 = 65,536 IP addresses
+
+But AWS reserves 5 IP addresses in every subnet, so usable addresses are fewer.
+
+Common CIDRs:
+
+CIDR	Total IPs
+/16	65,536
+/17 32768
+/18 16384
+/19 8192
+/20	4,096
+/21 2048
+/22 1024
+/23 512
+/24	256
+/25 128
+/26	64
+/27 32
+/28	16
+
+A common production design might be:
+
+VPC
+10.0.0.0/16
+
+Then divide it:
+
+10.0.0.0/24       Public subnet
+10.0.1.0/24       Public subnet
+
+10.0.10.0/24      Private application subnet
+10.0.11.0/24      Private application subnet
+
+10.0.20.0/24      Database subnet
+10.0.21.0/24      Database subnet
+
+
+
+
+3. What is a subnet?
+
+A subnet is a smaller network inside your VPC.
+
+Example:
+
+VPC
+10.0.0.0/16
+       |
+       +-----------------------+
+       |                       |
+       v                       v
+10.0.1.0/24              10.0.2.0/24
+Public Subnet             Private Subnet
+
+You don't normally put everything into one subnet.
+
+You separate resources according to their purpose.

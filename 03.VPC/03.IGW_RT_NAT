@@ -1,0 +1,175 @@
+01. Internet Gateway
+
+An Internet Gateway (IGW) allows resources in a VPC to communicate with the public Internet when routing and public addressing are configured appropriately.
+
+Think:
+
+VPC
+ |
+ | Route: 0.0.0.0/0
+ v
+Internet Gateway
+ |
+ v
+Internet
+
+Example:
+
+Public Subnet
+       |
+       v
+Route Table
+       |
+0.0.0.0/0
+       |
+       v
+Internet Gateway
+       |
+       v
+Internet
+
+A common interview question:
+
+Does attaching an Internet Gateway automatically make a subnet public?
+
+No.
+
+
+
+02. Route Table
+
+A route table tells AWS:
+
+"Where should network traffic go?"
+
+Example:
+
+Destination       Target
+
+10.0.0.0/16       local
+0.0.0.0/0         igw-xxxx
+
+Meaning:
+
+10.0.0.0/16
+     |
+     +---- Stay inside VPC
+
+0.0.0.0/0
+     |
+     +---- Send to Internet Gateway
+
+Private subnet:
+
+Destination       Target
+
+10.0.0.0/16       local
+0.0.0.0/0         nat-xxxx
+
+
+
+03. What is 0.0.0.0/0?
+
+Very important.
+
+0.0.0.0/0
+
+means:
+
+Any IPv4 destination that doesn't match a more specific route.
+
+For example:
+
+10.0.0.0/16
+
+means traffic within your VPC.
+
+While:
+
+0.0.0.0/0
+
+means the default route for other IPv4 destinations.
+
+
+04. NAT Gateway
+
+Suppose you have:
+
+Private EC2
+
+The EC2 needs to download packages:
+
+yum update
+apt update
+docker pull nginx
+
+But you don't want the EC2 directly accessible from the Internet.
+
+Solution:
+
+Private EC2
+    |
+    v
+NAT Gateway
+    |
+    v
+Internet Gateway
+    |
+    v
+Internet
+
+NAT allows outbound connectivity from private resources while preventing unsolicited inbound connections from the Internet to those private resources.
+
+
+
+
+Because the NAT Gateway itself needs a path to the Internet.
+
+A NAT Gateway is used to give private EC2 instances outbound Internet access. For that to happen, the NAT Gateway must be in a subnet whose route table sends Internet traffic to the Internet Gateway (IGW).
+
+Think of it like this
+
+PRIVATE SUBNET                    PUBLIC SUBNET
+                                               
+EC2 ──→ NAT Gateway ─────────→ IGW ──→ Internet
+       ↑                       ↑
+       │                       │
+   Private RT              Public RT
+   0.0.0.0/0              0.0.0.0/0
+      → NAT GW                → IGW
+
+The NAT Gateway is placed in the public subnet because:
+
+1. NAT Gateway needs an Elastic IP.
+
+
+2. Its subnet needs a route: 0.0.0.0/0 → IGW
+
+
+3. This allows the NAT Gateway to communicate with the Internet.
+
+
+
+Why can't NAT Gateway be in a private subnet?
+
+If you put it in a private subnet:
+
+EC2 → NAT Gateway → ??? → Internet
+
+The NAT Gateway would have no direct route through an IGW, so it couldn't provide Internet access.
+
+Very important distinction
+
+"Public subnet" doesn't mean the NAT Gateway is directly accessible by Internet users.
+
+A NAT Gateway is outbound-only for connections initiated from private resources. Internet users cannot initiate a connection through the NAT Gateway to your private EC2.
+
+So remember:
+
+> NAT Gateway = private subnet's exit door to the Internet
+
+
+
+And that exit door must be located in the public subnet, which has access to the IGW.
+
+You need the appropriate route in the subnet's route table, and the resource also needs suitable public connectivity (for example, a public IPv4 address where applicable).

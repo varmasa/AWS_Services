@@ -1,0 +1,312 @@
+01. Public vs Private Subnet
+
+This is one of the most important concepts.
+
+Public subnet
+
+A subnet is considered public when its route table has a route to an Internet Gateway.
+
+Example:
+
+Public Subnet
+10.0.1.0/24
+
+Route table:
+
+0.0.0.0/0 ---> Internet Gateway
+
+Typical resources:
+
+Internet
+   |
+   v
+ALB
+   |
+Public Subnet
+Private subnet
+
+A private subnet doesn't have a direct route to an Internet Gateway.
+
+Example:
+
+Private Subnet
+10.0.10.0/24
+
+Route:
+0.0.0.0/0 ---> NAT Gateway
+
+Typical resources:
+
+Application servers
+EKS worker nodes
+Jenkins agents
+Internal services
+
+
+
+02. Real-world architecture
+
+Imagine you're deploying an e-commerce application.
+
+                   INTERNET
+                       |
+                       v
+                +-------------+
+                |     ALB     |
+                +-------------+
+                  /         \
+                 /           \
+                v             v
+        Public Subnet A   Public Subnet B
+             AZ-1             AZ-2
+                |               |
+                +-------+-------+
+                        |
+                        v
+                Private Subnets
+                Application Tier
+                  EC2 / EKS
+                        |
+                        v
+                 Database Tier
+                    RDS
+
+This is a classic 3-tier architecture.
+
+Internet
+   |
+   v
+Presentation Layer
+   |
+   v
+Application Layer
+   |
+   v
+Database Layer
+
+
+
+03. IGW & NAT:
+
+The important point is: NAT Gateway does NOT forward incoming user requests to EC2 in a private subnet.
+
+NAT Gateway is mainly for outbound traffic from private EC2 → Internet.
+
+Typical AWS architecture
+
+INTERNET
+                       │
+                 User Request
+                       │
+                       ▼
+                ┌─────────────┐
+                │     ALB     │  ← Public subnet
+                └──────┬──────┘
+                       │
+                       ▼
+                ┌─────────────┐
+                │     EC2     │  ← Private subnet
+                └──────┬──────┘
+                       │
+                       ▼
+                ┌─────────────┐
+                │ NAT Gateway │  ← Public subnet
+                └──────┬──────┘
+                       │
+                       ▼
+                    INTERNET
+
+1. User → EC2
+
+Suppose a user opens:
+
+https://myapp.com
+
+The request generally goes:
+
+User → Internet → ALB → Private EC2
+
+The ALB is what receives the incoming request and sends it to the EC2 instances in the private subnet.
+
+NAT Gateway is not involved.
+
+
+2. EC2 → Internet
+
+Now suppose your private EC2 needs to download something:
+
+EC2 (Private)
+     │
+     ▼
+Route Table
+0.0.0.0/0 → NAT Gateway
+     │
+     ▼
+NAT Gateway
+     │
+     ▼
+Internet Gateway
+     │
+     ▼
+Internet
+
+This is where NAT Gateway is used.
+
+For example:
+
+Private EC2
+    │
+    │ "I need to download an update"
+    ▼
+NAT Gateway
+    │
+    ▼
+Internet
+
+The response comes back through the NAT Gateway to the same EC2 instance that initiated the connection.
+
+Why keep EC2 private?
+
+Because users on the Internet cannot directly initiate connections to the private EC2.
+
+You expose only the ALB, while the EC2 remains private.
+
+Remember:
+
+> ALB = Internet → Private EC2
+NAT Gateway = Private EC2 → Internet
+
+
+
+This distinction is very important in AWS networking.
+
+
+
+04. 
+
+Think of Internet Gateway (IGW) as the door between your VPC and the Internet.
+
+1. Public EC2 → Internet
+
+Suppose you have:
+
+Internet
+   │
+   ▼
+┌──────────────┐
+│     IGW      │
+└──────┬───────┘
+       │
+       ▼
+Public Subnet
+       │
+       ▼
+EC2
+
+For this to work, the public subnet's route table has:
+
+0.0.0.0/0 → Internet Gateway
+
+And the EC2 needs a public IPv4 address (or Elastic IP).
+
+So when EC2 wants to access Google, for example:
+
+EC2
+ │
+ │ Destination: Google
+ ▼
+Route Table
+ │
+ │ 0.0.0.0/0 → IGW
+ ▼
+IGW
+ │
+ ▼
+Internet
+
+The response comes back through the IGW to the EC2.
+
+
+---
+
+2. Private EC2 → Internet
+
+A private EC2 doesn't have a route directly to IGW.
+
+Instead:
+
+Private EC2
+     │
+     ▼
+Private Route Table
+     │
+     │ 0.0.0.0/0 → NAT Gateway
+     ▼
+NAT Gateway
+     │
+     ▼
+Public Route Table
+     │
+     │ 0.0.0.0/0 → IGW
+     ▼
+Internet
+
+So the path is:
+
+Private EC2 → NAT Gateway → IGW → Internet
+
+
+---
+
+3. User → Private EC2
+
+This is the important part from your previous question.
+
+A user cannot directly reach a private EC2 from the Internet.
+
+Instead, normally:
+
+INTERNET
+                 │
+                 │ User request
+                 ▼
+              ┌─────┐
+              │ IGW │
+              └──┬──┘
+                 │
+                 ▼
+        ┌────────────────┐
+        │ Public Subnet  │
+        │      ALB       │
+        └───────┬────────┘
+                │
+                ▼
+        ┌────────────────┐
+        │ Private Subnet │
+        │      EC2       │
+        └────────────────┘
+
+Here:
+
+User → IGW → ALB → EC2
+
+The ALB receives the request and forwards it to the private EC2.
+
+One simple way to remember
+
+Component	Main purpose
+
+IGW	Connects VPC ↔️ Internet
+NAT Gateway	Private subnet → Internet
+ALB	User/Internet → Application servers
+Public subnet	Resources that need direct Internet connectivity
+Private subnet	Resources that shouldn't accept direct Internet connections
+
+
+So don't think "NAT forwards user requests to EC2."
+
+Think:
+
+IGW provides Internet connectivity.
+ALB handles incoming application traffic.
+NAT Gateway provides outbound Internet access for private resources.

@@ -1,0 +1,139 @@
+01. VPC Peering
+
+Imagine:
+
+VPC-A
+10.0.0.0/16
+
+and:
+
+VPC-B
+10.1.0.0/16
+
+You want them to communicate.
+
+You can use:
+
+VPC Peering
+
+Architecture:
+
+VPC-A
+10.0.0.0/16
+     |
+     | Peering
+     |
+     v
+VPC-B
+10.1.0.0/16
+
+But VPC peering is not transitive.
+
+If:
+
+A <--> B
+B <--> C
+
+that doesn't automatically mean:
+
+A <--> C
+
+
+
+02. VPC Peering
+
+Imagine:
+
+VPC-A
+10.0.0.0/16
+
+and:
+
+VPC-B
+10.1.0.0/16
+
+You want them to communicate.
+
+You can use:
+
+VPC Peering
+
+Architecture:
+
+VPC-A
+10.0.0.0/16
+     |
+     | Peering
+     |
+     v
+VPC-B
+10.1.0.0/16
+
+But VPC peering is not transitive.
+
+If:
+
+A <--> B
+B <--> C
+
+that doesn't automatically mean:
+
+A <--> C
+
+
+03. Transit Gateway
+
+For many VPCs:
+
+VPC-A
+   \
+VPC-B ---- Transit Gateway
+   /
+VPC-C
+   \
+VPC-D
+
+Transit Gateway provides a central connectivity model for many VPCs and other supported networks.
+
+This becomes important in larger enterprises.
+
+
+04. VPC + EKS:
+Since you're learning Kubernetes/EKS, pay special attention here.
+
+Typical architecture:
+
+                     Internet
+                        |
+                        v
+                       ALB
+                        |
+              +---------+---------+
+              |                   |
+             AZ-1                AZ-2
+              |                   |
+        Private Subnet      Private Subnet
+              |                   |
+          EKS Nodes          EKS Nodes
+              |                   |
+              +---------+---------+
+                        |
+                       RDS
+
+EKS networking involves:
+
+VPC
+ |
+ +-- Subnets
+ |
+ +-- Route Tables
+ |
+ +-- Security Groups
+ |
+ +-- ENIs
+ |
+ +-- Load Balancers
+ |
+ +-- Pods
+
+This is why VPC should come before EKS in your learning sequence.
