@@ -1,0 +1,86 @@
+01. Static Website Hosting:
+S3 can host static website content.
+
+Example:
+
+index.html
+style.css
+app.js
+images/
+
+Architecture:
+
+User
+ |
+ v
+CloudFront
+ |
+ v
+S3
+ |
+ +-- index.html
+ +-- CSS
+ +-- JS
+
+For production architectures, CloudFront + S3 is commonly used.
+
+
+
+
+02. S3 + CloudFront:
+Suppose your website contains:
+
+index.html
+app.js
+style.css
+logo.png
+
+Instead of every user directly accessing S3:
+
+Users
+  |
+  v
+CloudFront
+  |
+  v
+S3
+
+CloudFront caches content closer to users.
+
+This can improve latency and reduce repeated origin requests.
+
+
+
+
+03. S3 Event Notifications:
+S3 can trigger events when objects change.
+
+For example:
+
+User uploads image
+       |
+       v
+      S3
+       |
+       v
+ Event Notification
+       |
+       v
+     Lambda
+
+Example:
+
+invoice.pdf uploaded
+       ↓
+S3
+       ↓
+Lambda
+       ↓
+Process invoice
+
+Events can integrate with services such as:
+
+Lambda
+SQS
+SNS
+EventBridge
