@@ -1,0 +1,77 @@
+01. Block Public Access:
+One of the most important S3 security settings.
+
+S3 provides Block Public Access controls to help prevent accidental public exposure.
+
+For private application buckets:
+
+Block Public Access
+        ↓
+      ENABLED
+
+Typical private bucket:
+
+Internet
+   X
+   |
+   v
+S3 Bucket
+   ^
+   |
+EC2 / IAM Role
+
+
+
+02. S3 Bucket vs EBS
+
+| S3                                | EBS                            |
+| --------------------------------- | ------------------------------ |
+| Object storage                    | Block storage                  |
+| Regional service                  | AZ-scoped volume               |
+| Access through APIs               | Attached to EC2                |
+| Great for files/artifacts/backups | Great for OS/application disks |
+| Highly durable object storage     | Persistent EC2 block storage   |
+
+
+Example
+
+EC2 operating system:
+
+EBS
+ |
+ +-- /var
+ +-- /home
+ +-- application
+
+Application uploaded images:
+
+S3
+ |
+ +-- images/
+
+
+
+03. S3 vs EFS
+
+| S3                                       | EFS                      |
+| ---------------------------------------- | ------------------------ |
+| Object storage                           | File storage             |
+| API-based access                         | NFS filesystem           |
+| Not mounted like normal Linux filesystem | Can be mounted           |
+| Great for artifacts/backups              | Shared filesystem        |
+| Massive object storage                   | Shared application files |
+
+
+Example:
+
+Multiple EC2 instances
+       |
+       v
+      EFS
+
+versus:
+
+EC2
+ |
+ v
+S3
