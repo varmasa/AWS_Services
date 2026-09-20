@@ -1,0 +1,399 @@
+01. First understand the concept
+
+Imagine you run an e-commerce company.
+
+You have:
+
+Customer profile images
+Application logs
+Database backups
+Old invoices
+Compliance records
+Disaster-recovery backups
+
+You don't want to store everything in the same way.
+
+For example:
+
+Customer images → accessed frequently
+Old logs → rarely accessed
+Compliance records → almost never accessed
+DR backups → hopefully never accessed
+
+S3 provides different Storage Classes for these different patterns.
+
+
+
+02. Main S3 Storage Classes
+
+For AWS DevOps, remember these:
+
+S3 Standard
+     ↓
+S3 Intelligent-Tiering
+     ↓
+S3 Standard-IA
+     ↓
+S3 One Zone-IA
+     ↓
+S3 Glacier Instant Retrieval
+     ↓
+S3 Glacier Flexible Retrieval
+     ↓
+S3 Glacier Deep Archive
+
+There are also newer/specialized classes such as S3 Express One Zone for very high-performance, latency-sensitive workloads.
+
+
+
+01. S3 Standard
+What is it?
+
+The default choice for frequently accessed data.
+
+High access
+High availability
+Fast access
+Higher storage cost
+Real-time example
+
+Suppose you have an online shopping website:
+
+myshop.com
+   ↓
+Product images
+   ↓
+S3 Standard
+
+Customers continuously request:
+
+iphone.jpg
+shirt.jpg
+laptop.jpg
+shoe.jpg
+
+These objects are accessed frequently.
+
+So:
+
+S3 Standard ✅
+Typical use cases
+Website assets
+Images
+Videos accessed frequently
+Application data
+Frequently accessed backups
+Interview answer
+
+S3 Standard is designed for frequently accessed data that requires high availability and low-latency access.
+
+
+
+
+02. S3 Intelligent-Tiering:
+This is extremely important for interviews.
+
+Problem
+
+Suppose you don't know how frequently users will access your data.
+
+Example:
+
+application-logs/
+
+Some logs might be accessed every day.
+
+Others might not be accessed for months.
+
+Instead of manually deciding when to move objects, S3 Intelligent-Tiering automatically moves objects between access tiers based on access patterns.
+
+Real-time example
+
+You upload:
+
+app-log-001.json
+
+Initially:
+
+Frequently accessed
+        ↓
+Frequent Access tier
+
+Later:
+
+Not accessed for a while
+        ↓
+Automatically moved to lower-cost tier
+
+If access happens again:
+
+Application requests object
+        ↓
+S3 handles the appropriate tier
+When should you use it?
+
+When:
+
+You don't know the access pattern.
+
+Think:
+
+Unknown access pattern
+        ↓
+Intelligent-Tiering
+Interview question
+
+Q: When would you choose Intelligent-Tiering instead of Standard?
+
+Answer:
+
+When access patterns are unpredictable or change over time, because S3 Intelligent-Tiering automatically moves objects between access tiers to optimize storage costs.
+
+
+
+03. S3 Standard-IA:
+IA = Infrequent Access
+
+The data isn't accessed often, but when you need it, you want immediate access.
+
+Think:
+
+Stored for a long time
+        ↓
+Rarely accessed
+        ↓
+But must be immediately available
+Real-time example
+
+Your company generates monthly reports:
+
+January-report.pdf
+February-report.pdf
+March-report.pdf
+...
+
+Employees rarely open old reports.
+
+But if an auditor asks:
+
+"Show me the March report."
+
+You need it immediately.
+
+So:
+
+S3 Standard-IA
+Important
+
+Standard-IA generally has:
+
+Lower storage cost than Standard
+Retrieval charges
+Minimum storage-duration considerations
+
+So don't use IA for data that is accessed constantly.
+
+
+
+04. S3 One Zone-IA
+Similar to Standard-IA, but data is stored in a single Availability Zone rather than being redundantly stored across multiple AZs.
+
+Therefore:
+
+Cheaper
+   ↓
+But less resilient to AZ-level failure
+Real-time example
+
+Suppose you have:
+
+Thumbnail images
+
+You can regenerate them from the original images.
+
+If something happens to the stored thumbnails, you can recreate them.
+
+Therefore:
+
+Original image
+       ↓
+S3 Standard
+
+Generated thumbnail
+       ↓
+S3 One Zone-IA
+Good use cases
+Re-creatable data
+Secondary copies
+Data that can tolerate AZ loss
+Bad use case
+
+Don't use it as your only copy of critical financial records.
+
+
+
+05. S3 Glacier Instant Retrieval
+This is for archive data that is rarely accessed but needs immediate access when required.
+
+Think:
+
+Rare access
+      +
+Milliseconds access
+Real-time example
+
+
+
+06. S3 Glacier Flexible Retrieval
+Previously known as S3 Glacier.
+
+This is for data that you don't need immediately.
+
+You can retrieve the data using different retrieval options, with retrieval time ranging from minutes to hours depending on the option.
+
+Real-time example
+
+Imagine a company stores:
+
+5-year-old application logs
+
+Normally:
+
+Nobody accesses them.
+
+But occasionally:
+
+Security investigation
+        ↓
+Need old logs
+        ↓
+Retrieve from Glacier Flexible Retrieval
+
+This is cheaper than keeping everything in Standard.
+A hospital might have medical images that:
+
+are rarely accessed
+        ↓
+but may suddenly be required
+        ↓
+during a patient/legal/audit request
+
+Glacier Instant Retrieval can be appropriate for archive data requiring immediate access.
+
+
+
+
+
+07. S3 Glacier Deep Archive ⭐
+
+This is for very long-term archival.
+
+Think:
+
+Almost never accessed
+        ↓
+Lowest storage cost
+        ↓
+Long retrieval time acceptable
+Real-time example
+
+A bank may need to retain certain records for many years:
+
+2018 transactions
+2019 transactions
+2020 transactions
+...
+
+They aren't accessed normally.
+
+But regulatory requirements may require keeping them.
+
+So:
+
+Long-term compliance archive
+             ↓
+S3 Glacier Deep Archive
+
+Another example:
+
+Company backup
+      ↓
+7-year retention
+      ↓
+Almost never accessed
+      ↓
+Deep Archive
+
+
+
+
+11. The easiest way to remember 🧠
+
+Think about access frequency:
+
+              FREQUENT
+                 │
+                 ▼
+          S3 STANDARD
+                 │
+                 ▼
+       INTELLIGENT-TIERING
+                 │
+                 ▼
+          STANDARD-IA
+                 │
+                 ▼
+           ONE ZONE-IA
+                 │
+                 ▼
+      GLACIER INSTANT
+                 │
+                 ▼
+      GLACIER FLEXIBLE
+                 │
+                 ▼
+       GLACIER DEEP ARCHIVE
+                 │
+                 ▼
+              RARE
+
+But remember: this isn't simply a strict "better/worse" ladder. The right class depends on access frequency, retrieval requirements, resilience needs, and retention period.
+
+12. Real-world DevOps architecture
+
+Imagine you're working as an AWS DevOps engineer.
+
+Your application generates logs:
+
+Application
+    │
+    ▼
+CloudWatch / logging pipeline
+    │
+    ▼
+S3
+
+You could implement a lifecycle strategy:
+
+Day 0
+  │
+  ▼
+S3 Standard
+  │
+  │  after some period
+  ▼
+S3 Standard-IA
+  │
+  │  later
+  ▼
+S3 Glacier Flexible Retrieval
+  │
+  │  long-term archive
+  ▼
+S3 Glacier Deep Archive
+
+This is called an S3 Lifecycle configuration.
+
+The important idea is:
+
+Instead of manually moving objects, define rules that transition objects between storage classes automatically.
