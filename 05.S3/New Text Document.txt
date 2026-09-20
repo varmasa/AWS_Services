@@ -1,0 +1,173 @@
+For an AWS DevOps role, you should learn S3 beyond just “object storage.” You should understand how S3 is used in CI/CD, Terraform, backups, logs, artifacts, static websites, deployments, security, and disaster recovery.
+
+
+1. What is Amazon S3?
+S3 = Simple Storage Service
+
+It is AWS's object storage service used to store files/data such as:
+
+Images
+Videos
+PDFs
+Application artifacts
+Backups
+Logs
+Terraform state
+Deployment packages
+Static website files
+Real-time example
+
+Suppose you have an application:
+
+User
+  |
+  v
+ALB
+  |
+  v
+EC2
+  |
+  +----> RDS
+  |
+  +----> S3
+
+Your EC2 application might store:
+
+S3
+├── images/
+│   ├── user1.jpg
+│   └── user2.jpg
+├── invoices/
+│   ├── invoice1001.pdf
+│   └── invoice1002.pdf
+└── backups/
+
+
+
+02. S3 is Object Storage:
+This is one of the most important concepts.
+
+S3 doesn't work like an EC2 filesystem.
+
+S3 stores objects.
+
+An object consists conceptually of:
+
+Object
+├── Key
+├── Data
+├── Metadata
+└── Tags
+
+Example:
+
+Bucket:
+my-company-prod
+
+Object:
+images/profile/user123.jpg
+
+Here:
+
+Bucket = my-company-prod
+
+Key = images/profile/user123.jpg
+
+Data = actual image
+
+The key looks like a folder path, but S3 does not fundamentally use traditional directories.
+
+
+
+
+3. Bucket:
+A bucket is a container for objects.
+
+Example:
+
+my-company-prod-artifacts
+
+Inside:
+
+my-company-prod-artifacts/
+│
+├── builds/
+│   ├── app-1.0.zip
+│   └── app-1.1.zip
+│
+├── logs/
+│   └── application.log
+│
+└── backups/
+    └── database.sql
+
+
+Important
+Bucket names must be globally unique within AWS's S3 namespace.
+
+For example:
+
+my-company-prod
+
+may already be taken.
+
+You might use:
+
+my-company-prod-artifacts-2026
+Instead of storing these files on EC2's disk, you store them in S3.
+
+
+
+04. Object:
+An object is the actual data stored in S3.
+
+Example:
+
+app.zip
+database.sql
+photo.jpg
+terraform.tfstate
+
+Each object has a key.
+
+Example:
+
+releases/v1.2.0/app.zip
+
+Think:
+
+Bucket
+   |
+   +--- Key
+          |
+          +--- Object/Data
+
+
+
+05.S3 is Highly Durable:
+S3 is designed for extremely high durability.
+
+The important interview concept is:
+
+Durability ≠ Availability
+
+Durability
+
+Probability that your data won't be lost.
+
+Availability
+
+Probability that the service is accessible when you need it.
+
+Don't say:
+
+"S3 has 99.999999999% availability."
+
+That's incorrect.
+
+The commonly cited S3 design target is:
+
+11 nines of durability = 99.999999999%
+
+
+
