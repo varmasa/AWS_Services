@@ -1,0 +1,181 @@
+1. S3 Folder Structure
+A good artifact bucket could look like:
+
+my-company-artifacts/
+│
+├── dev/
+│   ├── app/
+│   └── config/
+│
+├── staging/
+│   ├── app/
+│   └── config/
+│
+└── prod/
+    ├── app/
+    │   ├── v1.0.0/
+    │   ├── v1.1.0/
+    │   └── v1.2.0/
+    │
+    └── config/
+
+
+
+2. S3 Security Checklist
+For a production bucket, think about:
+
+S3 Security
+│
+├── Block Public Access
+├── IAM least privilege
+├── Bucket policies
+├── Encryption
+├── Versioning
+├── Logging / auditing
+├── Lifecycle policies
+├── Object ownership
+├── Access points where useful
+└── Monitoring
+
+
+3. CORS = Cross-Origin Resource Sharing.
+
+In S3, CORS is mainly relevant when a browser-based application hosted on one origin wants to access objects in an S3 bucket from JavaScript.
+
+Real-world example
+
+Suppose your frontend is:
+
+https://www.myapp.com
+
+Your images/files are stored in:
+
+https://my-app-bucket.s3.amazonaws.com
+
+The browser sees:
+
+myapp.com
+     ↓
+     ↓ JavaScript request
+     ↓
+S3 bucket
+
+These are different origins.
+
+The browser's same-origin security rules therefore come into play.
+
+1. What is an Origin?
+
+An origin consists of:
+
+Protocol + Domain + Port
+
+For example:
+
+https://www.myapp.com:443
+
+is an origin.
+
+These are different origins:
+
+https://www.myapp.com
+https://api.myapp.com
+https://mybucket.s3.amazonaws.com
+
+Even though they may belong to the same company.
+
+2. Real-time S3 CORS example ⭐
+
+Imagine you build a React application:
+
+React Frontend
+https://shop.example.com
+
+Users upload profile pictures directly to S3:
+
+Browser
+   │
+   │ PUT image
+   ▼
+S3
+
+Your JavaScript might make a request like:
+
+fetch("https://mybucket.s3.amazonaws.com/profile.jpg", {
+    method: "PUT"
+});
+
+The browser asks:
+
+"Is shop.example.com allowed to make this request to S3?"
+
+S3's CORS configuration tells the browser which cross-origin requests are allowed.
+
+3. Example CORS configuration
+
+Conceptually:
+
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": [
+        "https://shop.example.com"
+      ],
+      "AllowedMethods": [
+        "GET",
+        "PUT"
+      ],
+      "AllowedHeaders": [
+        "*"
+      ]
+    }
+  ]
+}
+
+This says:
+
+Origin:
+https://shop.example.com
+
+Allowed:
+GET
+PUT
+
+Headers:
+Allowed
+
+So:
+
+shop.example.com
+       │
+       │ GET / PUT
+       ▼
+      S3
+       │
+       ▼
+     Allowed ✅
+4. What happens without CORS?
+
+Suppose your S3 bucket contains:
+
+photo.jpg
+
+Your React application tries:
+
+https://shop.example.com
+          │
+          │ JavaScript
+          ▼
+S3 bucket
+
+If S3 doesn't return the appropriate CORS response headers, the browser blocks the cross-origin response.
+
+You may see an error similar to:
+
+Access to fetch at ...
+has been blocked by CORS policy
+Important:
+
+The request may actually reach S3.
+
+The browser is enforcing the CORS restriction on whether JavaScript can access the response.
