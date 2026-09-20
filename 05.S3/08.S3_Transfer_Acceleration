@@ -1,0 +1,307 @@
+01. S3 Transfer Acceleration:
+If users around the world upload large files to an S3 bucket, S3 Transfer Acceleration can use AWS edge locations to accelerate transfers over long distances.
+
+Conceptually:
+
+User
+ |
+ v
+AWS Edge Location
+ |
+ v
+S3 Bucket
+
+Useful for globally distributed uploaders.
+
+
+
+02. S3 Presigned URL:
+Very important real-world concept.
+Suppose your S3 bucket is private.
+
+You don't want:
+
+Internet → Public S3 bucket
+
+Instead:
+
+Application
+    |
+    | Generate presigned URL
+    v
+Temporary URL
+    |
+    v
+User
+    |
+    v
+Private S3 Object
+
+A presigned URL grants time-limited access to a specific S3 object.
+
+Example:
+
+User wants:
+invoice123.pdf
+
+Application
+     ↓
+Generate presigned URL
+     ↓
+User downloads file
+
+The bucket can remain private.
+
+
+
+
+03. Multipart Upload:
+For large files, S3 supports multipart uploads.
+
+Instead of:
+
+10 GB file
+    |
+    v
+Upload everything at once
+
+you can conceptually do:
+
+10 GB
+ |
+ +-- Part 1
+ +-- Part 2
+ +-- Part 3
+ +-- Part 4
+ +-- ...
+ |
+ v
+S3
+ |
+ v
+Complete multipart upload
+
+Advantages include:
+
+Better throughput
+Parallel uploads
+Ability to retry individual parts.
+
+
+
+04. S3 CLI:
+Very important for DevOps.
+
+Configure AWS CLI:
+
+aws configure
+
+List buckets:
+
+aws s3 ls
+
+Create bucket:
+
+aws s3 mb s3://my-demo-bucket
+
+Upload:
+
+aws s3 cp app.zip s3://my-demo-bucket/
+
+Download:
+
+aws s3 cp s3://my-demo-bucket/app.zip .
+
+Copy directory:
+
+aws s3 cp ./build s3://my-demo-bucket/build/ --recursive
+
+Sync:
+
+aws s3 sync ./build s3://my-demo-bucket/build/
+
+
+
+
+05. cp vs sync
+Very common DevOps question.
+
+cp
+
+Copies specified files/objects.
+
+aws s3 cp app.zip s3://bucket/
+sync
+
+Synchronizes directories.
+
+aws s3 sync ./build s3://bucket/build/
+
+Example:
+
+Local:
+build/
+├── index.html
+├── app.js
+└── style.css
+
+Run:
+aws s3 sync build/ s3://my-site/
+
+
+
+06. Jenkins + S3 Example
+
+Pipeline:
+
+Git Push
+   |
+   v
+Jenkins
+   |
+   +-- Checkout
+   |
+   +-- Build
+   |
+   +-- Test
+   |
+   +-- Package
+   |
+   v
+app.zip
+   |
+   v
+S3 Artifact Bucket
+
+Then deployment:
+
+S3
+ |
+ v
+EC2 / CodeDeploy
+ |
+ v
+Production
+
+This separates:
+
+Build
+
+from:
+
+Deployment
+
+
+
+07. GitHub Actions + S3
+
+Example workflow:
+
+Developer
+    |
+    v
+GitHub
+    |
+    v
+GitHub Actions
+    |
+    +-- Build
+    +-- Test
+    +-- Package
+    |
+    v
+S3
+    |
+    v
+Deployment
+
+You can upload:
+
+build.zip
+
+to an S3 bucket.
+
+For authentication, prefer OIDC federation with an IAM role rather than storing long-lived AWS access keys in GitHub secrets.
+
+
+
+08: S3 + CodePipeline
+Another common architecture:
+
+GitHub
+   |
+   v
+CodePipeline
+   |
+   v
+CodeBuild
+   |
+   v
+S3
+   |
+   v
+CodeDeploy
+   |
+   v
+EC2
+
+S3 can act as an artifact store in AWS CI/CD workflows.
+
+
+
+09. S3 + Terraform:
+
+This is extremely important for DevOps interviews.
+
+Terraform state can be stored remotely in S3.
+
+Instead of:
+
+terraform.tfstate
+
+sitting on your laptop:
+
+Developer Laptop
+     |
+     v
+terraform.tfstate
+
+you can use remote state:
+
+Terraform
+    |
+    v
+S3
+    |
+    +-- terraform.tfstate
+
+For team environments, this allows shared state storage.
+
+Modern Terraform setups can also use a locking mechanism/configuration supported by the Terraform/AWS versions you're using; don't blindly assume older DynamoDB-locking examples are the only/current approach.
+
+
+10. Why Remote Terraform State?
+
+Suppose:
+
+DevOps Engineer A
+       |
+       v
+terraform.tfstate
+
+and:
+
+DevOps Engineer B
+       |
+       v
+terraform.tfstate
+
+You can get state-management problems.
+
+With remote state:
+
+Engineer A ──┐
+              ├──> S3
+Engineer B ──┘
+
+Everyone works against the shared remote state.
