@@ -397,3 +397,16 @@ This is called an S3 Lifecycle configuration.
 The important idea is:
 
 Instead of manually moving objects, define rules that transition objects between storage classes automatically.
+
+Choose based on below:
+Storage cost
++
+Access frequency
++
+Retrieval cost
++
+Retrieval time
++
+Availability/resilience
++
+Minimum storage duration
