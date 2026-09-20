@@ -1,0 +1,100 @@
+01. S3 + Lambda Real-Time Example
+Suppose users upload images.
+
+User
+ |
+ | upload image
+ v
+S3
+ |
+ | ObjectCreated event
+ v
+Lambda
+ |
+ +-- Resize image
+ +-- Generate thumbnail
+ +-- Store thumbnail
+
+This is a classic serverless architecture.
+
+
+
+02. S3 + CloudTrail
+You can use AWS CloudTrail to audit API activity.
+
+Example:
+
+Developer
+    |
+    | DeleteObject
+    v
+   S3
+    |
+    v
+ CloudTrail
+
+You can investigate:
+
+Who accessed the bucket?
+Who deleted an object?
+When did it happen?
+Which API was called?
+
+
+
+
+03. S3 Access Logs:
+S3 can also provide logging mechanisms for bucket access.
+
+A common architecture:
+
+Application Bucket
+       |
+       | logs
+       v
+Logging Bucket
+
+Keep logging data separate from the application data where appropriate.
+
+
+
+
+04. S3 Replication:
+S3 supports replication between buckets.
+
+For example:
+
+Region: Mumbai
+     |
+     | Replication
+     v
+Region: Singapore
+
+Example:
+
+Mumbai S3
+   |
+   | CRR
+   v
+Singapore S3
+
+CRR = Cross-Region Replication
+
+Useful for scenarios such as:
+
+Disaster recovery
+Compliance
+Geographic requirements
+Business continuity
+
+
+05. Same-Region Replication:
+You can also replicate within the same AWS Region:
+
+Bucket A
+   |
+   | SRR
+   v
+Bucket B
+
+SRR = Same-Region Replication
