@@ -1,0 +1,265 @@
+01. Lifecycle Rules
+
+You can configure something like:
+IF object age > 30 days
+        ↓
+Move to Standard-IA
+
+IF object age > 90 days
+        ↓
+Move to Glacier Flexible Retrieval
+
+IF object age > 365 days
+        ↓
+Move to Glacier Deep Archive
+
+You can also configure expiration:
+
+IF object age > 7 years
+        ↓
+Delete object
+
+This is extremely common in real AWS environments.
+
+
+S3 Lifecycle
+
+Lifecycle rules automatically transition or delete objects.
+
+Example:
+
+Day 0
+ |
+ v
+S3 Standard
+ |
+ | 30 days
+ v
+S3 Standard-IA
+ |
+ | 90 days
+ v
+Glacier
+ |
+ | 365 days
+ v
+Delete
+Real DevOps example
+
+Your application generates:
+
+logs/
+├── 2026-09-20.log
+├── 2026-09-19.log
+├── 2026-08-01.log
+└── 2025-01-01.log
+
+You could configure:
+
+0-30 days     → Standard
+30-90 days    → Standard-IA
+90-365 days   → Glacier
+365+ days     → Delete
+
+This reduces storage costs.
+
+
+
+02. Versioning
+S3 Versioning maintains multiple versions of an object.
+
+Suppose:
+
+app.zip
+
+You upload version 1:
+
+app.zip → v1
+
+Then accidentally overwrite it:
+
+app.zip → v2
+
+With versioning enabled:
+
+app.zip
+ ├── Version 1
+ └── Version 2
+
+You can recover the older version.
+
+
+Why Versioning is Important for DevOps
+
+Imagine your CI/CD pipeline uploads:
+
+production/app.zip
+
+A bad deployment overwrites the previous artifact.
+
+Without versioning:
+
+Old artifact ❌
+
+With versioning:
+
+app.zip
+├── v1
+├── v2
+└── v3
+
+You can retrieve an earlier version.
+
+
+
+Delete Marker:
+When versioning is enabled, deleting an object generally creates a delete marker rather than immediately destroying all previous versions.
+
+Example:
+
+app.zip
+├── v1
+├── v2
+└── Delete Marker
+
+The object appears deleted to normal requests, but previous versions can still exist.
+
+
+
+
+03. S3 Encryption
+S3 supports encryption at rest.
+
+Common approaches:
+
+SSE-S3
+
+AWS manages the encryption keys.
+
+Application
+     |
+     v
+S3
+     |
+     v
+AWS-managed encryption
+SSE-KMS
+
+Uses AWS KMS.
+
+Application
+     |
+     v
+S3
+     |
+     v
+AWS KMS
+
+Useful when you need more control over:
+
+Key policies
+Auditing
+Permissions
+Key rotation
+SSE-C
+
+Customer provides the encryption key with the request.
+
+Less commonly used in typical AWS DevOps environments.
+
+
+Encryption in Transit:
+Use HTTPS/TLS when communicating with S3.
+
+Application
+     |
+   HTTPS
+     |
+     v
+    S3
+
+You generally want to prevent insecure HTTP access using an S3 bucket policy.
+
+
+
+04. IAM + S3
+This is extremely important.
+
+Suppose an EC2 server needs to upload files to S3.
+
+Don't put:
+
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+
+inside your application code.
+
+Instead:
+
+EC2
+ |
+ | IAM Role
+ |
+ v
+S3
+
+Example policy:
+
+{
+  "Effect": "Allow",
+  "Action": [
+    "s3:GetObject",
+    "s3:PutObject"
+  ],
+  "Resource": "arn:aws:s3:::my-app-bucket/*"
+}
+
+This follows the least privilege principle better than giving the instance broad S3 permissions.
+
+
+
+05. IAM User vs IAM Role
+
+Bad approach:
+
+EC2
+ |
+ +-- AWS Access Key
+ +-- AWS Secret Key
+ |
+ v
+S3
+
+Better:
+
+EC2
+ |
+ +-- IAM Role
+ |
+ v
+S3
+
+For AWS services, prefer IAM roles rather than long-lived access keys whenever possible.
+
+
+
+06. Bucket Policy
+
+A bucket policy is a resource-based policy attached to an S3 bucket.
+
+Example:
+
+Bucket
+  |
+  +--- Bucket Policy
+           |
+           +--- Who can access?
+           +--- What actions?
+           +--- Which objects?
+
+You can use bucket policies to control access from:
+
+IAM principals
+AWS services
+Specific conditions
+Specific VPC endpoints, where applicable
