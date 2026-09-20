@@ -1,0 +1,125 @@
+01. EC2 + ALB:
+This is one of the most common real-world architectures.
+
+                  Internet
+                     |
+                  Route 53
+                     |
+                    ALB
+                 /       \
+                /         \
+             EC2-1       EC2-2
+
+ALB distributes requests.
+
+If:
+EC2-1 → unhealthy
+
+ALB can stop routing traffic to that target.
+
+
+02. EC2 + Auto Scaling:
+This is where EC2 becomes truly useful for DevOps.
+
+Imagine:
+
+Normal traffic:
+
+EC2-1
+EC2-2
+
+Traffic increases:
+
+EC2-1
+EC2-2
+EC2-3
+EC2-4
+
+Traffic decreases:
+
+EC2-1
+EC2-2
+
+Auto Scaling manages this based on configured policies.
+
+
+
+03. Launch Template
+
+Launch Template defines how new EC2 instances should be created.
+
+It can specify:
+
+AMI
+Instance type
+Security groups
+IAM role
+User data
+EBS
+Network configuration
+
+Then:
+
+Launch Template
+       ↓
+Auto Scaling Group
+       ↓
+EC2 instances
+
+This is an extremely important DevOps concept.
+
+
+
+04. Auto Scaling Group:
+ASG manages a group of EC2 instances.
+
+Example:
+
+Minimum = 2
+Desired = 2
+Maximum = 6
+
+Normal:
+
+EC2-1
+EC2-2
+
+High traffic:
+
+EC2-1
+EC2-2
+EC2-3
+EC2-4
+EC2-5
+
+After traffic decreases:
+
+EC2-1
+EC2-2
+
+
+
+05. Self-Healing
+
+This is a major DevOps use case.
+
+Suppose:
+
+EC2-1
+EC2-2
+
+EC2-1 crashes.
+
+ASG detects the unhealthy instance:
+
+EC2-1
+  ↓
+Unhealthy
+  ↓
+Terminate
+  ↓
+Launch replacement
+  ↓
+EC2-3
+
+This is called self-healing infrastructure.

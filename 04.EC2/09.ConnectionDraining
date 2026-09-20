@@ -1,0 +1,151 @@
+Connection Draining in AWS — Real-Time Example
+
+Connection Draining means:
+
+When an EC2 instance is being removed from an AWS Load Balancer, the Load Balancer stops sending new requests to that instance but allows existing requests/connections to finish.
+
+In modern AWS terminology, you'll usually see this as Connection Draining / Deregistration Delay.
+
+1. Simple Example:
+Suppose your architecture is:
+
+             Users
+               ↓
+              ALB
+               ↓
+       ┌───────┼───────┐
+       ↓       ↓       ↓
+     EC2-1   EC2-2   EC2-3
+
+Now EC2-2 needs to be removed.
+
+Without connection draining:
+
+EC2-2
+  ↓
+Terminate immediately
+  ↓
+Existing requests ❌
+
+With connection draining:
+
+EC2-2
+  ↓
+Stop accepting NEW requests
+  ↓
+Allow EXISTING requests to finish
+  ↓
+Wait for deregistration delay
+  ↓
+Terminate
+
+
+2. Real-Time Example — File Download:
+Imagine a user is downloading a 2 GB file:
+
+User
+ ↓
+ALB
+ ↓
+EC2-2
+ ↓
+2 GB file
+
+The download takes 30 seconds.
+
+At the same time, Auto Scaling decides:
+
+"EC2-2 should be terminated."
+
+Without draining
+EC2-2
+ ↓
+Terminate
+ ↓
+Download ❌
+
+The user may experience a failed request.
+
+With draining
+EC2-2
+ ↓
+Deregister from ALB
+ ↓
+No NEW requests
+ ↓
+Existing download continues
+ ↓
+Download completes
+ ↓
+EC2 terminates
+
+That's the purpose of connection draining.
+
+
+3. New vs Existing Requests ⭐
+This is the most important concept.
+
+Suppose:
+
+EC2-2 is draining
+Existing connection
+User A
+   ↓
+ALB
+   ↓
+EC2-2
+
+It can continue.
+
+New connection
+User B
+   ↓
+ALB
+   X
+EC2-2
+
+ALB will no longer route new requests to EC2-2.
+
+Instead:
+
+User B
+   ↓
+ALB
+   ↓
+EC2-1 / EC2-3
+
+So:
+
+Existing requests → allowed to finish
+New requests      → sent elsewhere
+
+
+4. Deregistration Delay
+With an Application Load Balancer, the setting is called:
+
+Deregistration delay
+
+It determines how long the load balancer waits for existing connections to complete before considering the target fully deregistered.
+
+The default is commonly 300 seconds (5 minutes).
+
+You can configure the value according to your application's behavior.
+
+Example:
+
+Deregistration delay = 300 seconds
+
+Conceptually:
+
+T = 0
+EC2 starts draining
+      ↓
+No new requests
+      ↓
+Existing requests continue
+      ↓
+T = 300 sec
+      ↓
+Target fully deregistered
+
+Important: the delay is a maximum waiting period, not a guarantee that every connection will always remain open for the entire period.

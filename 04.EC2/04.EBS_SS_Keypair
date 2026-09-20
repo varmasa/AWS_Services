@@ -1,0 +1,165 @@
+01. EBS
+EBS = Elastic Block Store
+
+This is persistent block storage attached to EC2.
+
+Think:
+
+EC2
+ |
+ +---- EBS Volume
+
+Example:
+
+EC2
+ ├── Root EBS
+ │    └── OS
+ │
+ └── Additional EBS
+      └── Application data
+
+Important distinction:
+
+EC2 = compute
+EBS = block storage
+
+
+
+02. EBS vs Instance Store
+Very important interview topic.
+
+EBS
+
+Persistent.
+
+EC2
+ ↓
+Stop instance
+ ↓
+EBS data remains
+Instance Store
+
+Ephemeral.
+
+EC2
+ ↓
+Instance termination
+ ↓
+Instance-store data lost
+
+So don't use instance store for data that must survive instance termination.
+
+
+
+03. EBS Volume Types
+Common ones:
+
+gp3
+io2
+st1
+sc1
+
+For most normal applications:
+
+gp3
+
+is a common choice.
+
+For high-performance databases or workloads requiring very high IOPS:
+
+io2
+
+may be appropriate.
+
+
+
+04. Snapshots:
+EBS snapshot = backup of an EBS volume.
+
+Example:
+
+EBS
+ ↓
+Snapshot
+ ↓
+S3-backed AWS storage
+
+You can use snapshots for:
+
+Backup
+Disaster recovery
+Creating new volumes
+AMI creation
+
+
+
+05. Security Groups:
+Security Group = virtual firewall for EC2.
+
+Example:
+
+Internet
+   |
+   | TCP 443
+   ↓
+Security Group
+   |
+   ↓
+EC2
+
+Rules:
+
+Inbound
+22   SSH
+80   HTTP
+443  HTTPS
+8080 Application
+
+But production best practice is not:
+
+0.0.0.0/0 → SSH 22
+
+Instead, restrict SSH access where possible.
+
+
+
+06. Security Group is Stateful
+Suppose:
+
+Client → EC2
+       TCP 443
+
+If allowed inbound traffic creates a connection, return traffic is automatically allowed by the stateful behavior of the security group.
+
+This differs from a stateless network ACL.
+
+Remember:
+
+Security Group  → Stateful
+NACL            → Stateless
+
+
+
+07. Key Pair
+Used for SSH authentication to Linux EC2 instances.
+
+Example:
+
+ssh -i mykey.pem ec2-user@<public-ip>
+
+You should understand:
+
+Key Pair
+   ↓
+Private key (.pem)
+   ↓
+SSH
+   ↓
+EC2
+
+Never commit .pem files into Git.
+
+Bad:
+
+GitHub
+ └── production-key.pem
