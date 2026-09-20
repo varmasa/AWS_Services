@@ -1,0 +1,89 @@
+01.
+
+                 Developer
+                     |
+                     v
+                  GitHub
+                     |
+                     v
+              Jenkins / Actions
+                     |
+              +------+------+
+              |             |
+            Build          Test
+              |             |
+              +------+------+
+                     |
+                     v
+                app.zip
+                     |
+                     v
+                ┌────────┐
+                │   S3   │
+                │Artifact│
+                └────┬───┘
+                     |
+              +------+------+
+              |             |
+              v             v
+         CodeDeploy       Backup
+              |
+              v
+       EC2 / Auto Scaling
+              |
+              v
+             ALB
+              |
+              v
+            Users
+
+
+
+02:
+      Developer
+    |
+    v
+Terraform
+    |
+    +----------+
+    |          |
+    v          v
+AWS Resources  S3
+               |
+               v
+        terraform.tfstate
+
+Developer A ──┐
+Developer B ──┼──> Remote State
+Developer C ──┘        |
+                       v
+                      S3
+
+
+03:
+                        S3
+                     |
+        +------------+------------+
+        |            |            |
+      Bucket       Security     Storage
+        |            |            |
+     Objects       IAM/KMS     Classes
+        |            |            |
+       Key       Bucket Policy  Lifecycle
+        |
+    Versioning
+        |
+   Replication
+        |
+    Events
+
+
+    S3
+ |
+ +-- CI/CD artifacts
+ +-- Terraform state
+ +-- Backups
+ +-- Logs
+ +-- Static website
+ +-- CodeDeploy artifacts
+ +-- Disaster recovery
